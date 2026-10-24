@@ -19,13 +19,13 @@
   </a>
   <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="siteNav">Sections</button>
   <nav class="site-nav" id="siteNav" aria-label="Sections">
-    <a href="#demo">The demo</a>
+    <a href="#recreation">The demo</a>
+    <a href="#demo">The production</a>
     <a href="#file">The file</a>
     <a href="#loader">The loader</a>
     <a href="#archive">The archive</a>
     <a href="#asm">The code</a>
     <a href="#effects">Effects</a>
-    <a href="#recreation">The demo</a>
     <a href="#words">Their words</a>
   </nav>
   <a class="head-cta" href="#recreation">Run it <span aria-hidden="true">↘</span></a>
@@ -61,11 +61,78 @@
   </div>
 </section>
 
+<!-- ============================== THE PLAYER ============================== -->
+<section class="section alt recreation" id="recreation">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">01 / The demo, running</p>
+      <h2>Not a recreation.<br>The demo’s own run.</h2>
+    </div>
+
+    <p class="section-lede">Every picture and every sound below comes out of <code>CD2.EXE</code>. Its own start-up code, its own protected-mode extender, its own timer interrupt and mixer, and all of its scenes run, instruction by instruction, on a small virtual PC I wrote around the Unicorn CPU emulator. The run was recorded (video, palette and CRT timing at every retrace; the sample stream the demo writes to the parallel port) and this player decodes and shows that recording. No effect, model, texture, text or tune is redrawn or remixed in JavaScript. Use the slider to seek, <kbd>←</kbd>/<kbd>→</kbd> to jump 5 seconds, <kbd>,</kbd>/<kbd>.</kbd> to step one frame while paused.</p>
+
+    <div class="player-shell">
+      <div class="player-top">
+        <div class="player-id">
+          <span class="rec-dot"></span>
+          <span>CD2 / RECORDED RUN</span>
+          <span class="player-res" id="hudScene">loading…</span>
+        </div>
+        <div class="player-tools">
+          <button class="tool" id="soundBtn" type="button" title="Mute or unmute the recorded sample stream">Sound on</button>
+          <button class="tool" id="pauseBtn" type="button" title="Play or pause">Play</button>
+        </div>
+      </div>
+
+      <div class="screen-wrap" id="screenWrap">
+        <canvas id="demoCanvas" width="640" height="480" data-base="assets/demo/" aria-label="Crystal Dream II, recorded from the demo's own run"></canvas>
+      </div>
+
+      <div class="seek">
+        <span id="hudTime">0:00 / 0:00</span>
+        <div class="seek-track"><input id="seekBar" type="range" min="0" max="100" step="0.05" value="0" aria-label="Seek"></div>
+      </div>
+
+      <div class="scene-controls" role="group" aria-label="Chapters" id="chapters"></div>
+      <div class="player-foot">
+        <p class="fine">4:3 screen. Each frame is placed from the CRT registers the demo programmed for it (line and frame length, blanking, pixel doubling), so windowed effects keep the size and the black borders they had on a monitor. The audio is the demo’s own output to a Mono Lpt DAC at its 44.2 kHz mixing rate.</p>
+      </div>
+    </div>
+
+    <div class="faith-grid">
+      <div class="faith">
+        <h3>What runs</h3>
+        <ul>
+          <li>The unpacked program (<code>tools/img.bin</code>, produced by the EXE’s own unpacker) from its entry point <code>1000:0151</code>: Borland runtime, unit initialisations, the protected-mode switch, selector and heap management, every scene</li>
+          <li>The demo’s IDT and its timer handler. The mixer runs at 44.2 kHz inside it and writes each sample to port <code>378h</code></li>
+          <li>Its own setup menu (I pressed ↓ ↓ Enter for Mono Lpt 1 and ↓ ↓ ↓ Enter for 44000 Hz), the “Attention” card, the intro, cube and spacecut, plasma, fractal zoom, Vectorslime, tunnel flight, the raytraced pictures, Earth with its scroller, the chessboard and the main menu with its pages</li>
+        </ul>
+      </div>
+      <div class="faith">
+        <h3>What I supplied</h3>
+        <ul>
+          <li>DOS: the INT 21h calls it uses (files are served from <code>CD2.EXE</code> itself, where its archive lives), conventional memory blocks, an XMS driver with 8 MB, the BIOS tick</li>
+          <li>The VGA (sequencer, CRTC, graphics controller with write modes 0–3, latches and read modes, attribute controller, DAC), the 8254 timer, the 8259 interrupt delivery, the keyboard (scancodes from the key script above) and the printer port</li>
+          <li>Time: one virtual clock counted in timer counts. The CPU is assumed to run 30 million instructions per second; the retrace flag and the display sampling follow the CRT timing the demo programmed</li>
+        </ul>
+      </div>
+      <div class="faith">
+        <h3>What this does not prove</h3>
+        <ul>
+          <li>It is one run with one setup choice. Another sound device, mixing rate or CPU speed changes the audio and can change the pace of scenes that adapt to the frame time</li>
+          <li>My VGA and timer models are not a real card: an effect that relies on a corner I did not model would differ. The scenes I could compare against screenshots of the original match them</li>
+          <li>The monitor model has two constants (how much of each line and frame a monitor spends on flyback); they are set so that the standard 320×200 mode fills the screen</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============================== INTRO ============================== -->
 <section class="section intro" id="demo">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">01 / The production</p>
+      <p class="kicker">02 / The production</p>
       <h2>A Pascal program with assembly inner loops.</h2>
     </div>
 
@@ -129,7 +196,7 @@
 <section class="section alt" id="file">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">02 / The file</p>
+      <p class="kicker">03 / The file</p>
       <h2>A normal-looking EXE<br>that is mostly not an EXE.</h2>
     </div>
 
@@ -197,7 +264,7 @@
 <section class="section" id="loader">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">03 / The loader</p>
+      <p class="kicker">04 / The loader</p>
       <h2>588 bytes that unpack<br>a 320&nbsp;KB program.</h2>
     </div>
 
@@ -297,7 +364,7 @@
 <section class="section alt" id="pm">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">04 / The runtime</p>
+      <p class="kicker">05 / The runtime</p>
       <h2>It brings its own<br>protected mode.</h2>
     </div>
 
@@ -401,7 +468,7 @@
 <section class="section" id="archive">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">05 / The archive</p>
+      <p class="kicker">06 / The archive</p>
       <h2>58 files hidden<br>inside the EXE.</h2>
     </div>
 
@@ -453,7 +520,7 @@
 <section class="section" id="asm">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">06 / The code</p>
+      <p class="kicker">07 / The code</p>
       <h2>Eleven routines,<br>and who wrote them.</h2>
     </div>
     <p class="section-lede">Every listing below is generated from the unpacked image by <code>tools/gen_asm.py</code>, so the bytes cannot drift. Each card says who probably wrote it: <em>asm-style</em> means 386 code inside a 16-bit Pascal program with no compiler frame, <em>Borland Pascal runtime</em> and <em>compiler output</em> mean the opposite. The demo’s own Information page says “Borland Pascal 7.0 (Assembler of coz)”, i.e. inline <code>asm</code> blocks inside Pascal, so “hand-written” remains an inference from style.</p>
@@ -844,7 +911,7 @@
 <section class="section" id="effects">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">07 / The effects</p>
+      <p class="kicker">08 / The effects</p>
       <h2>What the screen is doing,<br>and why it is fast.</h2>
     </div>
     <p class="section-lede">The cards above show how single routines work. This part is about the effects they add up to. A 386 of the time ran a few tens of millions of instructions per second, and the VGA could be written one byte at a time over a slow bus. At 70 frames a second that leaves a few hundred thousand cycles to fill 64,000 pixels, so every effect is built around doing less, or letting the VGA do more.</p>
@@ -874,73 +941,6 @@
 
       <h3>Why it holds together</h3>
       <p>None of this is one big trick. Each effect picks the cheapest representation: a strip instead of a fractal, a few small buffers instead of a rendered tunnel of light, planes instead of per-pixel blending, a lookup table instead of a lighting calculation, fixed-point instead of floating point, patched loops instead of registers. What remains per pixel is a store, and often not even that. That is how an effect that looks like several hundred thousand operations a frame gets through on a machine that has barely more than that to spend.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ============================== THE PLAYER ============================== -->
-<section class="section alt recreation" id="recreation">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="kicker">08 / The demo, running</p>
-      <h2>Not a recreation.<br>The demo’s own run.</h2>
-    </div>
-
-    <p class="section-lede">Every picture and every sound below comes out of <code>CD2.EXE</code>. Its own start-up code, its own protected-mode extender, its own timer interrupt and mixer, and all of its scenes run, instruction by instruction, on a small virtual PC I wrote around the Unicorn CPU emulator. The run was recorded (video, palette and CRT timing at every retrace; the sample stream the demo writes to the parallel port) and this player decodes and shows that recording. No effect, model, texture, text or tune is redrawn or remixed in JavaScript. Use the slider to seek, <kbd>←</kbd>/<kbd>→</kbd> to jump 5 seconds, <kbd>,</kbd>/<kbd>.</kbd> to step one frame while paused.</p>
-
-    <div class="player-shell">
-      <div class="player-top">
-        <div class="player-id">
-          <span class="rec-dot"></span>
-          <span>CD2 / RECORDED RUN</span>
-          <span class="player-res" id="hudScene">loading…</span>
-        </div>
-        <div class="player-tools">
-          <button class="tool" id="soundBtn" type="button" title="Mute or unmute the recorded sample stream">Sound on</button>
-          <button class="tool" id="pauseBtn" type="button" title="Play or pause">Play</button>
-        </div>
-      </div>
-
-      <div class="screen-wrap" id="screenWrap">
-        <canvas id="demoCanvas" width="640" height="480" data-base="assets/demo/" aria-label="Crystal Dream II, recorded from the demo's own run"></canvas>
-      </div>
-
-      <div class="seek">
-        <span id="hudTime">0:00 / 0:00</span>
-        <div class="seek-track"><input id="seekBar" type="range" min="0" max="100" step="0.05" value="0" aria-label="Seek"></div>
-      </div>
-
-      <div class="scene-controls" role="group" aria-label="Chapters" id="chapters"></div>
-      <div class="player-foot">
-        <p class="fine">4:3 screen. Each frame is placed from the CRT registers the demo programmed for it (line and frame length, blanking, pixel doubling), so windowed effects keep the size and the black borders they had on a monitor. The audio is the demo’s own output to a Mono Lpt DAC at its 44.2 kHz mixing rate.</p>
-      </div>
-    </div>
-
-    <div class="faith-grid">
-      <div class="faith">
-        <h3>What runs</h3>
-        <ul>
-          <li>The unpacked program (<code>tools/img.bin</code>, produced by the EXE’s own unpacker) from its entry point <code>1000:0151</code>: Borland runtime, unit initialisations, the protected-mode switch, selector and heap management, every scene</li>
-          <li>The demo’s IDT and its timer handler. The mixer runs at 44.2 kHz inside it and writes each sample to port <code>378h</code></li>
-          <li>Its own setup menu (I pressed ↓ ↓ Enter for Mono Lpt 1 and ↓ ↓ ↓ Enter for 44000 Hz), the “Attention” card, the intro, cube and spacecut, plasma, fractal zoom, Vectorslime, tunnel flight, the raytraced pictures, Earth with its scroller, the chessboard and the main menu with its pages</li>
-        </ul>
-      </div>
-      <div class="faith">
-        <h3>What I supplied</h3>
-        <ul>
-          <li>DOS: the INT 21h calls it uses (files are served from <code>CD2.EXE</code> itself, where its archive lives), conventional memory blocks, an XMS driver with 8 MB, the BIOS tick</li>
-          <li>The VGA (sequencer, CRTC, graphics controller with write modes 0–3, latches and read modes, attribute controller, DAC), the 8254 timer, the 8259 interrupt delivery, the keyboard (scancodes from the key script above) and the printer port</li>
-          <li>Time: one virtual clock counted in timer counts. The CPU is assumed to run 30 million instructions per second; the retrace flag and the display sampling follow the CRT timing the demo programmed</li>
-        </ul>
-      </div>
-      <div class="faith">
-        <h3>What this does not prove</h3>
-        <ul>
-          <li>It is one run with one setup choice. Another sound device, mixing rate or CPU speed changes the audio and can change the pace of scenes that adapt to the frame time</li>
-          <li>My VGA and timer models are not a real card: an effect that relies on a corner I did not model would differ. The scenes I could compare against screenshots of the original match them</li>
-          <li>The monitor model has two constants (how much of each line and frame a monitor spends on flyback); they are set so that the standard 320×200 mode fills the screen</li>
-        </ul>
-      </div>
     </div>
   </div>
 </section>
