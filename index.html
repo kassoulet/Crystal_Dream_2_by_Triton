@@ -24,7 +24,7 @@
     <a href="#loader">The loader</a>
     <a href="#archive">The archive</a>
     <a href="#asm">The code</a>
-    <a href="#recreation">Recreation</a>
+    <a href="#recreation">The demo</a>
     <a href="#words">Their words</a>
   </nav>
   <a class="head-cta" href="#recreation">Run it <span aria-hidden="true">↘</span></a>
@@ -44,7 +44,7 @@
     </h1>
     <p class="hero-sub">A 3.1&nbsp;MB DOS demo: unpacked, every embedded file decoded, the authors’ own texts read — and re-imagined in a browser tab.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="#recreation"><span class="btn-play" aria-hidden="true">▶</span> Run the recreation</a>
+      <a class="btn btn-primary" href="#recreation"><span class="btn-play" aria-hidden="true">▶</span> Run the demo</a>
       <a class="btn btn-ghost" href="#file">Read the teardown</a>
     </div>
     <dl class="hero-stats">
@@ -776,7 +776,7 @@
 0823A  66 11 CE          adc esi,ecx
 0823D  4A                dec dx   ; 4 pixels per trip
 0823E  75 ED             jnz 0x822d</code></pre>
-        <p>This is the engine of the fractal zoom. The picture is a log-mapped strip, so zooming is just scrolling it: <code>col = T[z&amp;7][j] − (z&gt;&gt;3)</code>. Each screen column is then a vertical slice of that strip scaled by a per-column factor. The scaler keeps source position and fraction in one <code>ESI</code>: <code>movsb</code> advances the 16-bit position by one, and <code>adc esi,ecx</code> adds the step to both halves, with the carry out of the fractional half re-entering as +1 on the position. That is Bresenham with no branch, unrolled four times and entered through the low two bits of the count. I ran this exact routine under emulation to read the zoom back out of <code>MegaFrac.DAT</code> (see the Recreation).</p>
+        <p>This is the engine of the fractal zoom. The picture is a log-mapped strip, so zooming is just scrolling it: <code>col = T[z&amp;7][j] − (z&gt;&gt;3)</code>. Each screen column is then a vertical slice of that strip scaled by a per-column factor. The scaler keeps source position and fraction in one <code>ESI</code>: <code>movsb</code> advances the 16-bit position by one, and <code>adc esi,ecx</code> adds the step to both halves, with the carry out of the fractional half re-entering as +1 on the position. That is Bresenham with no branch, unrolled four times and entered through the low two bits of the count. I ran this exact routine under emulation to read the zoom back out of <code>MegaFrac.DAT</code> (see the player).</p>
         <div class="asm-foot"><span>386 · movsb, adc esi</span><span>100 columns x 400 pixels per frame</span></div>
       </article>
 
@@ -826,7 +826,7 @@
 03B63  75 AF             jnz 0x3b14
 03B65  1F                pop ds
 03B66  83 46 FE 02       add word [bp-0x2],0x2</code></pre>
-        <p>The plasma is <code>T[p1+2y+7x] + T[p3−3y] + T[p4−y]</code> with <code>T = 128+127·sin</code>, written in 4-pixel blocks (all four planes enabled, so a byte is four identical pixels) and in two identical lines per store. The cheap part is the inner loop: the eight table offsets are <em>immediates inside the instructions</em> (<code>[si+0x201]</code> is a placeholder). At the top of each frame the routine writes the step multiples straight into its own code through a code-segment alias, so the loop needs no index registers for them. I ran this routine, the table builder and the palette routine under emulation; the JavaScript scene matches them exactly (see the Recreation).</p>
+        <p>The plasma is <code>T[p1+2y+7x] + T[p3−3y] + T[p4−y]</code> with <code>T = 128+127·sin</code>, written in 4-pixel blocks (all four planes enabled, so a byte is four identical pixels) and in two identical lines per store. The cheap part is the inner loop: the eight table offsets are <em>immediates inside the instructions</em> (<code>[si+0x201]</code> is a placeholder). At the top of each frame the routine writes the step multiples straight into its own code through a code-segment alias, so the loop needs no index registers for them. I ran this routine, the table builder and the palette routine under emulation; the JavaScript scene matches them exactly (see the player).</p>
         <div class="asm-foot"><span>386 · self-modifying code</span><span>80 x 100 blocks per frame</span></div>
       </article>
 
@@ -839,106 +839,71 @@
   </div>
 </section>
 
-<!-- ============================== RECREATION ============================== -->
+<!-- ============================== THE PLAYER ============================== -->
 <section class="section alt recreation" id="recreation">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">07 / The recreation</p>
-      <h2>Same resolution.<br>Ports and replays.</h2>
+      <p class="kicker">07 / The demo, running</p>
+      <h2>Not a recreation.<br>The demo’s own run.</h2>
     </div>
 
-    <p class="section-lede">A 320×200 indexed framebuffer, a 256-colour palette, palette fades, and a scene clock, in JavaScript. Nothing from the original runs in your browser, but the scenes come in two kinds. Plasma, fractal zoom, Earth, chessboard, pictures and menu are my ports of the original routines, models and images. The intro, cube, vectorslime and tunnel flight are replays: every frame was recorded from the demo’s own scene procedure running under emulation on my machine, and the player only decodes them. The music is the original .MOD files. Use the slider to seek, or ← / → to jump 5 seconds.</p>
+    <p class="section-lede">Every picture and every sound below comes out of <code>CD2.EXE</code>. Its own start-up code, its own protected-mode extender, its own timer interrupt and mixer, and all of its scenes run, instruction by instruction, on a small virtual PC I wrote around the Unicorn CPU emulator. The run was recorded (video, palette and CRT timing at every retrace; the sample stream the demo writes to the parallel port) and this player decodes and shows that recording. No effect, model, texture, text or tune is redrawn or remixed in JavaScript. Use the slider to seek, <kbd>←</kbd>/<kbd>→</kbd> to jump 5 seconds, <kbd>,</kbd>/<kbd>.</kbd> to step one frame while paused, <kbd>N</kbd> for native resolution.</p>
 
     <div class="player-shell">
       <div class="player-top">
         <div class="player-id">
           <span class="rec-dot"></span>
-          <span>CD2 / BROWSER PORT</span>
-          <span class="player-res">320 × 200 · 4:3 · 256 colours</span>
+          <span>CD2 / RECORDED RUN</span>
+          <span class="player-res" id="hudScene">loading…</span>
         </div>
         <div class="player-tools">
-          <select class="tool" id="trackSel" aria-label="Soundtrack module" title="One of the four .MOD files inside CD2.EXE">
-            <option value="auto">Auto (by scene)</option><option value="Declogue">The Decalogue</option><option value="AmbPower">Ambient Power</option>
-            <option value="Desert-D">Desert Dawn</option><option value="TrnsAtln">Trans Atlantic</option>
-          </select>
-          <button class="tool" id="soundBtn" type="button" aria-pressed="false" title="Play the original module">SOUND OFF</button>
-          <button class="tool" id="crtBtn" type="button" aria-pressed="true" title="Toggle scanlines">CRT ON</button>
-          <button class="tool" id="pauseBtn" type="button" title="Pause or resume">PAUSE</button>
+          <button class="tool" id="nativeBtn" type="button" aria-pressed="false" title="Draw the 3D scenes at your screen's resolution (key N)">Native: off</button>
+          <button class="tool" id="soundBtn" type="button" title="Mute or unmute the recorded sample stream">Sound on</button>
+          <button class="tool" id="pauseBtn" type="button" title="Play or pause">Play</button>
         </div>
       </div>
 
       <div class="screen-wrap" id="screenWrap">
-        <canvas id="demoCanvas" width="320" height="200" aria-label="Recreated Crystal Dream II demo"></canvas>
-        <div class="crt" id="crtOverlay" aria-hidden="true"></div>
-        <div class="screen-hud" id="screenHud">
-          <span id="hudScene">BOOT</span>
-        </div>
+        <canvas id="demoCanvas" width="640" height="480" data-base="assets/demo/" aria-label="Crystal Dream II, recorded from the demo's own run"></canvas>
       </div>
 
       <div class="seek">
-        <span id="hudTime">00:00</span>
-        <div class="seek-track"><input id="seekBar" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek"><div id="seekMarks"></div></div>
-        <span id="hudTotal">01:40</span>
+        <span id="hudTime">0:00 / 0:00</span>
+        <div class="seek-track"><input id="seekBar" type="range" min="0" max="100" step="0.05" value="0" aria-label="Seek"></div>
       </div>
 
-      <div class="scene-controls" role="group" aria-label="Scene selection">
-        <button data-scene="boot" class="sc active">Boot</button>
-        <button data-scene="intro" class="sc">Intro</button>
-        <button data-scene="plasma" class="sc">Plasma</button>
-        <button data-scene="cube" class="sc">Cube</button>
-        <button data-scene="fractal" class="sc">Fractal</button>
-        <button data-scene="slime" class="sc">Slime</button>
-        <button data-scene="tunnel" class="sc">Tunnel</button>
-        <button data-scene="pictures" class="sc">Pictures</button>
-        <button data-scene="earth" class="sc">Earth</button>
-        <button data-scene="chess" class="sc">Chess</button>
-        <button data-scene="end" class="sc">Endpart</button>
-      </div>
-
+      <div class="scene-controls" role="group" aria-label="Chapters" id="chapters"></div>
       <div class="player-foot">
-        <p><strong>Keys:</strong> <kbd>1</kbd>–<kbd>3</kbd> original start modes (plasma / pictures / endpart) · <kbd>0</kbd> boot · <kbd>4</kbd> cube · <kbd>5</kbd> fractal · <kbd>6</kbd> earth · <kbd>7</kbd> chess · <kbd>8</kbd> slime · <kbd>9</kbd> tunnel · <kbd>L</kbd> loop · <kbd>←</kbd>/<kbd>→</kbd> seek ±5 s · <kbd>Space</kbd> pause · <kbd>M</kbd> mute</p>
-        <p class="fine">The Pictures and Endpart scenes show the original images decoded from CD2.EXE; the music is the original .MOD files. The cube is a replay of recorded frames, not a port of the engine.</p>
+        <p class="fine">4:3 screen. Each frame is placed from the CRT registers the demo programmed for it (line and frame length, blanking, pixel doubling), so windowed effects keep the size and the black borders they had on a monitor. The audio is the demo’s own output to a Mono Lpt DAC at its 44.2 kHz mixing rate.</p>
+        <p class="fine"><strong>Native</strong> redraws the polygons, lines and stars of the 3D scenes (intro, cube, tunnel flight, Earth, chessboard) at your screen’s resolution. The demo’s polygon fillers were logged with the 3D vertices behind each call, which are projected again without rounding to the 320×200 grid; colours, textures and shade tables are the demo’s own. Vectorslime, plasma, fractals, pictures and menus are bitmap effects and stay as recorded.</p>
       </div>
     </div>
 
     <div class="faith-grid">
       <div class="faith">
-        <h3>Original data</h3>
+        <h3>What runs</h3>
         <ul>
-          <li>The raytraced pictures and the main menu: the original TGAs, 320×400 shown on a 4:3 screen</li>
-          <li>Earth: the original 264-polygon sphere (<code>Earth3.TVO</code>) with the original map texture</li>
-          <li>Chessboard: the original piece and board models, the original marble texture, one moving light</li>
-          <li>Intro: all 2,150 frames (about 31 s) of the intro procedure (unit at image 0xBEE0: “yet another delightning product”, “Triton productions presents”, rotating wireframe objects, the Crystal Dream II and Triton logos) running under emulation with the VGA model of the cube scene plus a DAC. The four pictures are loaded from the archive by the demo’s own LBM reader</li>
-          <li>Cube: the title card is rendered by the original text routine with the original font, palette and fade timeline; the 3D part is every frame (2,382, about 34 s) of the scene’s own loop (image 0xB41D) executed under emulation with a small VGA model (write modes 0–3, set/reset, latches, colour compare). Frames and per-frame palette are stored delta + deflate (2 MB) and decoded on demand</li>
-          <li>Vectorslime: all 1,136 frames (about 16 s) of the scene procedure (image 0x248b) running under emulation. It loads <code>SHD_Cube.TVO</code> through the demo’s own archive reader, renders the rotating object into a small 120×100 buffer, and rebuilds each screen from 40 earlier buffers picked by sine tables (the authors: “the drawing of the current frame uses previously drawn frames”). The title is the original text routine, and the fades and corner ornaments are the scene’s own</li>
-          <li>Tunnel flight: all 4,750 frames (about 68 s, 6 MB) of the scene procedure (image 0xBA92, caption “Virtual Reality”) running under emulation. It loads <code>NFly2.TVW</code> and its <code>NF-*.TVO</code> segments and ship through the demo’s archive reader, and draws with the demo’s own polygon filler, whose scanline routines are generated at start-up into its code segment. The flight ends in the original’s own fade to black; the last frames of its closing screen fade are not reproduced</li>
-          <li>Plasma: the original table, frame renderer, palette routine and phase motion, ported and checked against the routines running under emulation</li>
-          <li>Fractal zoom: the original MegaFrac data, the original scaler’s pixel map (verified pixel-exact against the routine running under emulation), the original sine-wave palette and zoom schedule</li>
-          <li>Music: the four original .MOD files, mixed in the browser; Auto follows the Credits page (Vogue for intro to fractal, LizardKing for chess and endpart)</li>
-          <li>Scene order from the authors’ own list; the “ATTENTION — this is a Triton production” text comes from the binary</li>
+          <li>The unpacked program (<code>tools/img.bin</code>, produced by the EXE’s own unpacker) from its entry point <code>1000:0151</code>: Borland runtime, unit initialisations, the protected-mode switch, selector and heap management, every scene</li>
+          <li>The demo’s IDT and its timer handler. The mixer runs at 44.2 kHz inside it and writes each sample to port <code>378h</code></li>
+          <li>Its own setup menu (I pressed ↓ ↓ Enter for Mono Lpt 1 and ↓ ↓ ↓ Enter for 44000 Hz), the “Attention” card, the intro, cube and spacecut, plasma, fractal zoom, Vectorslime, tunnel flight, the raytraced pictures, Earth with its scroller, the chessboard and the main menu with its pages</li>
         </ul>
       </div>
       <div class="faith">
-        <h3>My look-alikes</h3>
+        <h3>What I supplied</h3>
         <ul>
-          <li>The cube is a replay, not a port: the engine (slab, apexes, intersection, star field) is not reimplemented, so it cannot be changed or run at another resolution. The scene’s music clock is assumed to tick at 50 Hz and the frame rate at 70 fps; the objects are constants inside the code, not <code>SHD_Cube.TVO</code></li>
-          <li>The intro replay is less certain than the others: it needs the VGA write modes, latch copies and a DAC to be exact, I have no capture of the original intro to compare with, and the short vertical dashes over the first scenes are the original’s starfield (confirmed from memory of the demo, not from a capture). Its page selectors (eight 8 KB pages from A000h) are my reading of the code. Treat it as a good approximation, not a verified frame sequence</li>
-          <li>Vectorslime is a replay too, and shown in the same 256×133 window as the other effect scenes without evidence for that either way (I have no capture of it). Its initial rotation angles come from uninitialised stack in the original; I used zeros. The 120×100 slime buffers start empty, and the tick rate (50 Hz) and frame rate (70 fps) are assumed, as for the cube. Running both under emulation needed workarounds: the demo’s hard-coded video selector 30h, a 64 KB file buffer that did not fit in 1 MB, and the DOS calls of its file layer</li>
-          <li>The plasma’s 256 × 133 viewport is inferred from the original screenshots, and its length assumes the music player ticks at 50 Hz (the scene waits for 512 ticks)</li>
-          <li>The fractal’s 70 Hz step rate is an assumption (the loop waits on a retrace counter whose rate I did not determine)</li>
-          <li>The chessboard is a 4×4 board (the board model has 16 top squares and the pieces are 82% of a square). Piece placement is mine, the pieces are not animated, and there is no bishop model in the file</li>
-          <li>Earth’s texture is mapped affinely per polygon and the lighting is flat</li>
-          <li>Which module goes with which scene inside each composer’s pair is my guess. Earth (29 s) and the chessboard (122 s) last as long as the original procedures ran under emulation, whose screens I could not record; each raytraced picture stays 432 frames (6.2 s), as the original picture routines ran under emulation; the durations of boot and endpart are mine</li>
-          <li>The endpart cursor marker is mine; the menu logic was not reversed</li>
+          <li>DOS: the INT 21h calls it uses (files are served from <code>CD2.EXE</code> itself, where its archive lives), conventional memory blocks, an XMS driver with 8 MB, the BIOS tick</li>
+          <li>The VGA (sequencer, CRTC, graphics controller with write modes 0–3, latches and read modes, attribute controller, DAC), the 8254 timer, the 8259 interrupt delivery, the keyboard (scancodes from the key script above) and the printer port</li>
+          <li>Time: one virtual clock counted in timer counts. The CPU is assumed to run 30 million instructions per second; the retrace flag and the display sampling follow the CRT timing the demo programmed</li>
+          <li>For Native: hooks on the demo’s polygon fillers, line routine and projection routines that copy their arguments out (the demo itself is not changed), and the rules that turn the log into a picture: plane masks, clip windows, what the demo erased with writes of its own</li>
         </ul>
       </div>
       <div class="faith">
-        <h3>Not reproduced</h3>
+        <h3>What this does not prove</h3>
         <ul>
-          <li>The setup screen’s hardware detection and the intro’s performance tester</li>
-          <li>Spacecut and the vector scroller (not rebuilt). I also tried to replay Earth and the chessboard from the original procedures the way the slime and tunnel were done: they need about 600 KB of models and textures at once plus a 640 KB picture unit, more than a 1 MB real-mode heap can hold, so those two scenes stay my own port of the original models</li>
-          <li>The information viewer’s scrolling pages (they are shown, as text and images, in “In their own words”)</li>
-          <li>Sound Blaster and Gravis Ultrasound initialisation, and the exact mixer</li>
+          <li>It is one run with one setup choice. Another sound device, mixing rate or CPU speed changes the audio and can change the pace of scenes that adapt to the frame time</li>
+          <li>My VGA and timer models are not a real card: an effect that relies on a corner I did not model would differ. The scenes I could compare against screenshots of the original match them</li>
+          <li>The monitor model has two constants (how much of each line and frame a monitor spends on flyback); they are set so that the standard 320×200 mode fills the screen</li>
+          <li>Native mode is a re-render: it matches the recorded frames to about 98–99 % of their pixels at 320×200 (the rest are edge pixels where the demo’s integer rasteriser and a continuous one differ), the shade tables of textured faces are applied per face rather than per pixel, and a few frames fall back to the recorded bitmap</li>
         </ul>
       </div>
     </div>
@@ -1729,9 +1694,8 @@ X-trade</pre>
   </div>
 </footer>
 
-<script src="js/modplayer.js"></script>
-<script src="js/demo3d.js"></script>
-<script src="js/demo.js"></script>
+<script src="js/native.js"></script>
+<script src="js/player.js"></script>
 <script src="js/site.js"></script>
 </body>
 </html>

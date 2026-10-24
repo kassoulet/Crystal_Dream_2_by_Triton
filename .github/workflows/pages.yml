@@ -27,9 +27,8 @@ jobs:
         run: for f in js/*.js; do node --check "$f"; done
       - name: Python syntax
         run: python3 -m compileall -q tools
-      - name: Recorded frame files are present
-        run: |
-          for f in cube intro slime tunnel; do test -s assets/orig/${f}_frames.bin; done
+      - name: Recorded run is present
+        run: test -s assets/demo/main/video.bin && test -s assets/demo/main/vec.bin
 
   deploy:
     needs: check
