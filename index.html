@@ -24,6 +24,7 @@
     <a href="#loader">The loader</a>
     <a href="#archive">The archive</a>
     <a href="#asm">The code</a>
+    <a href="#effects">Effects</a>
     <a href="#recreation">The demo</a>
     <a href="#words">Their words</a>
   </nav>
@@ -839,15 +840,53 @@
   </div>
 </section>
 
+<!-- ============================== EFFECTS ============================== -->
+<section class="section" id="effects">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">07 / The effects</p>
+      <h2>What the screen is doing,<br>and why it is fast.</h2>
+    </div>
+    <p class="section-lede">The cards above show how single routines work. This part is about the effects they add up to. A 386 of the time ran a few tens of millions of instructions per second, and the VGA could be written one byte at a time over a slow bus. At 70 frames a second that leaves a few hundred thousand cycles to fill 64,000 pixels, so every effect is built around doing less, or letting the VGA do more.</p>
+
+    <div class="prose">
+      <h3>The VGA does the work: planes, latches, masks</h3>
+      <p>Two video layouts are used. The 256-colour modes are <strong>unchained</strong> (Mode X): the card’s memory is four planes and one CPU write can reach any subset of them, which allows four pixels per store, several pages in 256&nbsp;KB, and flipping pages by writing the CRTC start address on the beam (see the “Flip on the beam” card). The intro and the cube scene use <strong>16 colours</strong>, where each plane is one bit of the colour and each byte holds eight pixels. There the graphics controller is the clever part: with write mode 3 the CPU sends a bit mask, the colour comes from the set/reset register, and the <em>sequencer map mask</em> chooses which planes receive it. A filler writes only a mask byte per eight pixels and never reads video memory.</p>
+      <p>That also gives <strong>glass for free</strong>. Planes are independent, so a face drawn with colour 2 into plane 1 only changes bit 1 of what is already there. The translucent crystals and the glowing slab of the cube scene are ordinary opaque polygons written into some planes; where they overlap other faces, the palette entries for the combined bits show a blend. Nothing is read, nothing is mixed per pixel, and the palette entries for the combined indices are what make the result look like glass (I saw the plane masks in the logged calls; the palette design is inferred).</p>
+
+      <h3>Polygons: two engines</h3>
+      <p>The wireframe intro and the cube use a small 16-colour engine; the tunnel flight, Earth and the chessboard use a 256-colour one. Both draw back to front in painter’s order, with no depth buffer: faces are drawn in the order the engine emits them (I logged this order, I did not reverse how it is chosen), so there is no per-pixel depth test to pay for.</p>
+      <p><strong>The projection is cheaper than it looks.</strong> A vertex becomes <code>x' = ((x + x/4) · F) / (z + z0) + centre</code>, <code>y' = (y · F) / (z + z0) + centre</code>. The <code>x + x/4</code> is a shift and an add, and it is the 5:4 correction that makes a 320×200 picture look right on a 4:3 monitor; it costs no extra multiply. There is one divide per vertex, each vertex is projected once into a table and every face that uses it reads the result, and faces closer than a near distance are clipped in 3D before projection rather than per pixel afterwards.</p>
+      <p><strong>Flat faces</strong> are filled four bytes at a time: the colour byte is copied into a 32-bit register and each span is stored as 32-bit words with a few bytes at the ends. <strong>Textured faces</strong> (Earth, the chessboard) take a 256×256 texture and walk it with 8.8 fixed-point texture coordinates, interpolated linearly across the face, with no per-pixel division. Faces are small and curved surfaces are cut into many of them, so the lack of perspective correction is hard to see, and the inner loop is a handful of instructions. Lighting is a table: a texel is passed through a 256-byte shade row picked from the face’s light value (one <code>xlat</code> instruction), so shading costs one lookup per pixel and no arithmetic on colours.</p>
+      <p>The scanline routines themselves are generated and patched at start-up, into the demo’s own code segment (the “Patch the loop, not the index” card shows the idea). The step sizes of the current face are written into the instructions as immediates, so the inner loop needs no registers for them and nothing is loaded in the loop.</p>
+
+      <h3>Tunnel flight, Earth and the chessboard</h3>
+      <p>The <strong>tunnel</strong> is a world file, a chain of segments rendered with the same polygon filler as everything else; the black bars above and below are the demo’s clip window, which the filler checks per face, so nothing outside is ever drawn. The <strong>Earth</strong> is a sphere of 264 faces with one map texture and a flat light, and the perspective text scroller over the chessboard goes through the same textured-face path. The <strong>chessboard</strong> is the original board and piece models with a marble texture and one moving light, drawn into a RAM buffer and copied to the screen in one block, which keeps the partial drawing of a frame off the screen.</p>
+
+      <h3>Effects that avoid 3D</h3>
+      <p><strong>Plasma.</strong> Every pixel is a sum of three sine-table lookups, <code>T[p1+2y+7x] + T[p3−3y] + T[p4−y]</code>, written as 4-pixel blocks and two identical lines per store, which is a quarter of the pixels and half of the rows. The offsets are patched into the loop’s own instructions at the top of each frame. The palette routine runs per frame too; I have not worked out how much of the motion it carries.</p>
+      <p><strong>Fractal zoom.</strong> The picture is not computed live. It is a log-mapped strip (<code>MegaFrac.DAT</code>) in which zooming in is just scrolling, and each screen column is a vertical slice of the strip scaled by a per-column factor. The scaler is a branch-free Bresenham in one register (the “Scale a column with an end-around carry” card), so a zoom that looks like a rendered Mandelbrot costs one pass over 320 columns.</p>
+      <p><strong>Vectorslime.</strong> The object is rendered small, into a 120×100 buffer, and each screen is assembled from <strong>40 earlier buffers</strong> picked by sine tables, so the object leaves trails and echoes. The authors’ own comment says it: the drawing of the current frame uses previously drawn frames. One small 3D render per frame, reused many times, gives a screen full of motion for the cost of a handful of blits.</p>
+      <p><strong>Raytraced pictures.</strong> Pre-rendered 320×400 images shown on a 4:3 screen, which is why they look soft and tall; the demo only has to decode and display them, and it fades them with the palette.</p>
+
+      <h3>Palette, retrace and sound</h3>
+      <p>Fades are done by rewriting the 256 DAC entries, not by redrawing pixels: a fade costs 768 port writes instead of 64,000 pixel writes (a typical use of the DAC; the demo’s fades are the ones in its recorded run). Page flips and palette changes are timed to the vertical retrace, so nothing tears. The soundtrack is mixed in the timer interrupt itself: the 8254 is programmed to fire at about 44.2&nbsp;kHz (a reload of 27), and each interrupt computes one sample and writes it to the parallel port at <code>378h</code>, where a simple DAC on the port (the setup menu calls it Mono Lpt) turns it into sound. The interrupt is the sample clock, so no sound card is needed, and the main program only has to be interruptible.</p>
+
+      <h3>Why it holds together</h3>
+      <p>None of this is one big trick. Each effect picks the cheapest representation: a strip instead of a fractal, a few small buffers instead of a rendered tunnel of light, planes instead of per-pixel blending, a lookup table instead of a lighting calculation, fixed-point instead of floating point, patched loops instead of registers. What remains per pixel is a store, and often not even that. That is how an effect that looks like several hundred thousand operations a frame gets through on a machine that has barely more than that to spend.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ============================== THE PLAYER ============================== -->
 <section class="section alt recreation" id="recreation">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">07 / The demo, running</p>
+      <p class="kicker">08 / The demo, running</p>
       <h2>Not a recreation.<br>The demo’s own run.</h2>
     </div>
 
-    <p class="section-lede">Every picture and every sound below comes out of <code>CD2.EXE</code>. Its own start-up code, its own protected-mode extender, its own timer interrupt and mixer, and all of its scenes run, instruction by instruction, on a small virtual PC I wrote around the Unicorn CPU emulator. The run was recorded (video, palette and CRT timing at every retrace; the sample stream the demo writes to the parallel port) and this player decodes and shows that recording. No effect, model, texture, text or tune is redrawn or remixed in JavaScript. Use the slider to seek, <kbd>←</kbd>/<kbd>→</kbd> to jump 5 seconds, <kbd>,</kbd>/<kbd>.</kbd> to step one frame while paused, <kbd>N</kbd> for native resolution.</p>
+    <p class="section-lede">Every picture and every sound below comes out of <code>CD2.EXE</code>. Its own start-up code, its own protected-mode extender, its own timer interrupt and mixer, and all of its scenes run, instruction by instruction, on a small virtual PC I wrote around the Unicorn CPU emulator. The run was recorded (video, palette and CRT timing at every retrace; the sample stream the demo writes to the parallel port) and this player decodes and shows that recording. No effect, model, texture, text or tune is redrawn or remixed in JavaScript. Use the slider to seek, <kbd>←</kbd>/<kbd>→</kbd> to jump 5 seconds, <kbd>,</kbd>/<kbd>.</kbd> to step one frame while paused.</p>
 
     <div class="player-shell">
       <div class="player-top">
@@ -857,7 +896,6 @@
           <span class="player-res" id="hudScene">loading…</span>
         </div>
         <div class="player-tools">
-          <button class="tool" id="nativeBtn" type="button" aria-pressed="false" title="Draw the 3D scenes at your screen's resolution (key N)">Native: off</button>
           <button class="tool" id="soundBtn" type="button" title="Mute or unmute the recorded sample stream">Sound on</button>
           <button class="tool" id="pauseBtn" type="button" title="Play or pause">Play</button>
         </div>
@@ -875,7 +913,6 @@
       <div class="scene-controls" role="group" aria-label="Chapters" id="chapters"></div>
       <div class="player-foot">
         <p class="fine">4:3 screen. Each frame is placed from the CRT registers the demo programmed for it (line and frame length, blanking, pixel doubling), so windowed effects keep the size and the black borders they had on a monitor. The audio is the demo’s own output to a Mono Lpt DAC at its 44.2 kHz mixing rate.</p>
-        <p class="fine"><strong>Native</strong> redraws the polygons, lines and stars of the 3D scenes (intro, cube, tunnel flight, Earth, chessboard) at your screen’s resolution. The demo’s polygon fillers were logged with the 3D vertices behind each call, which are projected again without rounding to the 320×200 grid; colours, textures and shade tables are the demo’s own. Vectorslime, plasma, fractals, pictures and menus are bitmap effects and stay as recorded.</p>
       </div>
     </div>
 
@@ -894,7 +931,6 @@
           <li>DOS: the INT 21h calls it uses (files are served from <code>CD2.EXE</code> itself, where its archive lives), conventional memory blocks, an XMS driver with 8 MB, the BIOS tick</li>
           <li>The VGA (sequencer, CRTC, graphics controller with write modes 0–3, latches and read modes, attribute controller, DAC), the 8254 timer, the 8259 interrupt delivery, the keyboard (scancodes from the key script above) and the printer port</li>
           <li>Time: one virtual clock counted in timer counts. The CPU is assumed to run 30 million instructions per second; the retrace flag and the display sampling follow the CRT timing the demo programmed</li>
-          <li>For Native: hooks on the demo’s polygon fillers, line routine and projection routines that copy their arguments out (the demo itself is not changed), and the rules that turn the log into a picture: plane masks, clip windows, what the demo erased with writes of its own</li>
         </ul>
       </div>
       <div class="faith">
@@ -903,7 +939,6 @@
           <li>It is one run with one setup choice. Another sound device, mixing rate or CPU speed changes the audio and can change the pace of scenes that adapt to the frame time</li>
           <li>My VGA and timer models are not a real card: an effect that relies on a corner I did not model would differ. The scenes I could compare against screenshots of the original match them</li>
           <li>The monitor model has two constants (how much of each line and frame a monitor spends on flyback); they are set so that the standard 320×200 mode fills the screen</li>
-          <li>Native mode is a re-render: it matches the recorded frames to about 98–99 % of their pixels at 320×200 (the rest are edge pixels where the demo’s integer rasteriser and a continuous one differ), the shade tables of textured faces are applied per face rather than per pixel, and a few frames fall back to the recorded bitmap</li>
         </ul>
       </div>
     </div>
@@ -914,7 +949,7 @@
 <section class="section alt" id="words">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">08 / In their own words</p>
+      <p class="kicker">09 / In their own words</p>
       <h2>Six text pages,<br>read from the binary.</h2>
     </div>
     <div class="two-col">
@@ -1579,7 +1614,7 @@ X-trade</pre>
 <section class="section" id="appendix">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">09 / Field notes</p>
+      <p class="kicker">10 / Field notes</p>
       <h2>How this was taken apart.</h2>
     </div>
 
@@ -1694,7 +1729,6 @@ X-trade</pre>
   </div>
 </footer>
 
-<script src="js/native.js"></script>
 <script src="js/player.js"></script>
 <script src="js/site.js"></script>
 </body>

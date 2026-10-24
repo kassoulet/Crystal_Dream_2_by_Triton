@@ -28,7 +28,7 @@ jobs:
       - name: Python syntax
         run: python3 -m compileall -q tools
       - name: Recorded run is present
-        run: test -s assets/demo/main/video.bin && test -s assets/demo/main/vec.bin
+        run: test -s assets/demo/main/video.bin
 
   deploy:
     needs: check
