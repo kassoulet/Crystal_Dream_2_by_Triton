@@ -42,6 +42,10 @@ of Triton.
 The player keeps its 320×200 buffer inside a 4:3 frame, stretching the pixels
 vertically the way a VGA CRT did; the captured stills are shown the same way.
 
+Optional **CRT** checkbox (or key `C`, remembered in localStorage, off by default): a light scanline overlay with a faint vignette, one band per source row (480).
+When on, the screen is sized to a whole number k of device pixels per source row so the bands stay perfectly regular; if the window is too small for k >= 2 it is disabled.
+Display only, the frames are untouched.
+
 ## Reproduce the analysis
 
 ```sh

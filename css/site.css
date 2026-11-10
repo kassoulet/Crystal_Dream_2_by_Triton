@@ -418,18 +418,15 @@ table.compact td:first-child{width:42%}
   background:#000;
 }
 .crt{
-  position:absolute;inset:0;pointer-events:none;z-index:2;
+  /* scanline overlay: one band per source row; --p (CSS px) = k device px, set by js/player.js */
+  position:absolute;inset:0;pointer-events:none;z-index:2;display:none;
   background:
-    repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.22) 2px 3px),
-    radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(0,0,0,.45) 100%);
-  mix-blend-mode:multiply;
-  opacity:1;transition:opacity .3s;
+    linear-gradient(180deg,transparent 0 45%,rgba(0,0,0,.34) 100%) 0 0/100% var(--p,2px) repeat-y,
+    radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,.14) 100%);
 }
-.crt::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(255,0,80,.03),transparent 30%,transparent 70%,rgba(0,200,255,.03));
-}
-.crt.off{opacity:0}
+.crt.on{display:block}
+.tool.crt-tool{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.tool.crt-tool.na{opacity:.4;cursor:not-allowed}
 .screen-hud{
   position:absolute;left:12px;right:12px;bottom:10px;z-index:3;
   display:flex;justify-content:space-between;

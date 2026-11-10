@@ -117,12 +117,37 @@
   const mb = $("soundBtn"); if (mb) mb.addEventListener("click", () => { S.muted = !S.muted; if (S.gain) S.gain.gain.value = S.muted ? 0 : 1; mb.textContent = S.muted ? "Sound off" : "Sound on"; });
   document.addEventListener("keydown", e => {
     const tag = (e.target.tagName || "").toLowerCase(); if (tag === "input" && e.target.type !== "range" || tag === "textarea") return;
-    if (e.key === " ") { e.preventDefault(); S.playing ? pause() : play(); }
+    if (e.key === "c" || e.key === "C") { if (crt.ok) crtSet(!crt.on); }
+    else if (e.key === " ") { e.preventDefault(); S.playing ? pause() : play(); }
     else if (e.key === "ArrowRight") { setT(now() + 5); S.needDraw = true; }
     else if (e.key === "ArrowLeft") { setT(now() - 5); S.needDraw = true; }
     else if (e.key === "." && !S.playing) { setT(now() + 1 / 70); S.needDraw = true; }
     else if (e.key === "," && !S.playing) { setT(now() - 1 / 70); S.needDraw = true; }
   });
+  // CRT option: scanline overlay, one band per source row (480), band period = k whole device pixels (no moire). Display only.
+  const crt = { on: false, ok: false }, wrap = $("screenWrap"), ov = $("crtOv"), chk = $("crtChk"), lbl = $("crtLbl");
+  try { crt.on = localStorage.getItem("cd2crt") === "1"; } catch (e) {}
+  function crtLayout() {
+    if (!wrap || !ov || !chk) return;
+    const dpr = window.devicePixelRatio || 1, host = wrap.parentElement;
+    const availH = Math.min(window.innerHeight, (host.clientWidth * 3 / 4)) * dpr;   // device px; width cap keeps 4:3
+    const k = Math.floor(availH / canvas.height + 1e-6);
+    crt.ok = k >= 2;
+    chk.disabled = !crt.ok; lbl.classList.toggle("na", !crt.ok);
+    lbl.title = crt.ok ? "Scanline overlay (key C)" : "Window too small for an even scanline pattern (needs at least 2 device pixels per source row)";
+    chk.checked = crt.on && crt.ok;
+    const active = crt.on && crt.ok;
+    ov.classList.toggle("on", active);
+    if (active) {
+      wrap.style.height = (k * canvas.height / dpr) + "px"; wrap.style.width = (k * canvas.height * 4 / 3 / dpr) + "px"; wrap.style.aspectRatio = "auto";
+      ov.style.setProperty("--p", (k / dpr) + "px");
+    } else { wrap.style.height = wrap.style.width = wrap.style.aspectRatio = ""; ov.style.removeProperty("--p"); }
+  }
+  function crtSet(v) { crt.on = v; try { localStorage.setItem("cd2crt", v ? "1" : "0"); } catch (e) {} crtLayout(); }
+  if (chk) chk.addEventListener("change", () => crtSet(chk.checked));
+  window.addEventListener("resize", crtLayout); document.addEventListener("fullscreenchange", crtLayout);
+  (function watchDpr() { const m = matchMedia("(resolution: " + (window.devicePixelRatio || 1) + "dppx)"); m.addEventListener("change", () => { crtLayout(); watchDpr(); }, { once: true }); })();
+  crtLayout();
   init().then(loop);
   window.CD2Player = { play, pause, setT, S };
 })();

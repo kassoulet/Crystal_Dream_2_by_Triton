@@ -80,12 +80,14 @@
         </div>
         <div class="player-tools">
           <button class="tool" id="soundBtn" type="button" title="Mute or unmute the recorded sample stream">Sound on</button>
+          <label class="tool crt-tool" id="crtLbl" title="Scanline overlay (key C)"><input type="checkbox" id="crtChk"> CRT</label>
           <button class="tool" id="pauseBtn" type="button" title="Play or pause">Play</button>
         </div>
       </div>
 
       <div class="screen-wrap" id="screenWrap">
         <canvas id="demoCanvas" width="640" height="480" data-base="assets/demo/" aria-label="Crystal Dream II, recorded from the demo's own run"></canvas>
+        <div class="crt" id="crtOv" aria-hidden="true"></div>
       </div>
 
       <div class="seek">
