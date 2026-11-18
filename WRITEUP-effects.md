@@ -167,7 +167,7 @@ contains four private addresses and phone numbers from 1993; they are blanked in
 ## 9. Art catalogue (images, fonts, textures, meshes)
 
 All images below were decoded from the archive by `tools/extract.py` + `tools/convert_assets.py` (TGA and IFF to PNG) and live in `assets/orig/`. "Colours" is the number of distinct
-RGB values actually present in the converted PNG (counted for this write-up), not the declared palette size. I did not save new preview images; the existing PNGs are the previews.
+RGB values actually present in the converted PNG (counted for this write-up), not the declared palette size. Preview sheets generated from those PNGs are in `figures/` (below).
 
 | file in the archive | size in archive | decoded PNG | colours used | use |
 | --- | --- | --- | --- | --- |
@@ -187,6 +187,10 @@ RGB values actually present in the converted PNG (counted for this write-up), no
 | IntroBG1/2.RAW | 64,768 each | not converted by the site tools to PNG here | - | 768-byte 8-bit palette + 320x200 pixels (a sound card, a mixing desk, per the site) |
 | Stndrd8.RAW | 1,024 | - | - | 8x8 bitmap font, 128 glyphs (the site notes a VOGUE logo glyph) |
 | MegaFrac.DAT | 540,672 | `strip.png` 4096x128 (grey) | 8 planes of 64 KB + 16 KB table | fractal strip (section 4) |
+
+![Contact sheet of the decoded pictures, textures and fonts (real palettes, labelled; 320x400 pictures shrunk to fit)](figures/pictures.png)
+
+![EndFont2.LBM, the 640x350 sheet behind the six text pages](figures/EndFont2.png)
 
 Formats: the `.TGA` are 8-bit colour-mapped 320x400; the `.LBM` are IFF ILBM (4 planes) or PBM (8-bit) with ByteRun1 compression, palettes read from the file. The site lists 13 LBM and 5 TGA,
 all decoded. The title card's palette is in `assets/orig/title_pal.json` and its indices in `title_idx.png` (61 colours used).
@@ -208,6 +212,10 @@ all decoded. The title card's palette is in `assets/orig/title_pal.json` and its
 
 `.TVO` layout: header words A..D (section offsets), 256 x RGB palette at 0x40 (a grey ramp with steps of 2 for shaded objects), faces 16 bytes (flags 0x140 polygon / 0x80 sentinel, v0..v3, colour), vertices
 6 bytes int16 (cube = +-9830). Archive sizes: Earth3.TVO 15,620; NCD-King 8,236; NC-MB3/4 2,874; NF-NShip 3,252; TxtTori8 3,688; SHD_Cube 1,202. `SinTab.RAW` (8,192 bytes) holds 4 x 1024 int16 sine/cosine tables.
+
+![Wireframes of ten of the objects in assets/orig/objects.json, one arbitrary rotated orthographic view each; vertex and face counts are those of the export](figures/meshes.png)
+
+The chess pieces other than the king show a few long stray edges in this view; the faces are drawn as exported (first four indices, repeats collapsed) and I did not check whether those come from the data or from that reading.
 
 ## 10. Open questions
 
