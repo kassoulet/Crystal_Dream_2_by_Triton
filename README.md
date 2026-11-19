@@ -70,3 +70,11 @@ The decoded assets in `assets/orig/` are Triton's original work, kept here with 
 ## Deployment
 
 `.github/workflows/pages.yml` checks the JavaScript and Python syntax and publishes the static site (`index.html`, `css/`, `js/`, `assets/`; not `tools/` or `CD2.EXE`) to GitHub Pages on every push to `main`. Enable it once under Settings → Pages → Source: GitHub Actions.
+
+## Write-ups on the site
+
+The write-ups are published as HTML next to the player (`./writeups/`, generated from `WRITEUP-*.md` and the referenced `figures/`; needs pandoc). After editing a write-up, regenerate with:
+
+```
+../../tools/mkwriteups.sh . .    # shared script: demoports/tools/mkwriteups.sh REPO_DIR PUBLISH_SUBDIR
+```

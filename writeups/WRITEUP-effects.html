@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>CRYSTAL DREAM II (Triton, 1993) - effects, scenes and how the
+"port" works</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+  :root{--bg:#fff;--fg:#1d1d22;--mut:#666;--ac:#c4155a;--code:#f3f3f6;--bd:#d8d8e0}
+  @media (prefers-color-scheme:dark){:root{--bg:#0b0b10;--fg:#d8d8e0;--mut:#9a9aa8;--ac:#ff6a9a;--code:#17171f;--bd:#33333f}}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:62rem;padding:0 16px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+  #wunav{display:flex;gap:16px;flex-wrap:wrap;padding-top:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);font-size:14px}
+  a{color:var(--ac)}
+  h1,h2,h3,h4{line-height:1.25;margin-top:1.8em}
+  img{max-width:100%;height:auto;image-rendering:auto}
+  pre{background:var(--code);border:1px solid var(--bd);border-radius:4px;padding:10px 12px;overflow-x:auto;font-size:13px;line-height:1.4}
+  code{background:var(--code);padding:1px 4px;border-radius:3px;font-size:.92em;overflow-wrap:anywhere}
+  pre code{background:none;padding:0;overflow-wrap:normal}
+  table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}
+  td,th{border:1px solid var(--bd);padding:4px 8px}
+  blockquote{border-left:3px solid var(--bd);margin-left:0;padding-left:14px;color:var(--mut)}
+  #TOC{font-size:14px}#TOC ul{padding-left:1.2em}
+  #TOC>ul{padding-left:0;list-style:none}
+  details#toc-box{margin:12px 0}
+  </style>
+</head>
+<body>
+<nav id="wunav"><a href="../index.html">&larr; the demo</a> <a href="WRITEUP-asm.html">asm</a> <a href="WRITEUP-effects.html">effects</a> <a href="https://github.com/kassoulet/Crystal_Dream_2_by_Triton">README on GitHub</a></nav>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#crystal-dream-ii-triton-1993---effects-scenes-and-how-the-port-works"
+id="toc-crystal-dream-ii-triton-1993---effects-scenes-and-how-the-port-works">CRYSTAL
+DREAM II (Triton, 1993) - effects, scenes and how the "port" works</a>
+<ul>
+<li><a href="#0-what-this-port-is-and-is-not"
+id="toc-0-what-this-port-is-and-is-not">0. What this port is (and is
+not)</a></li>
+<li><a href="#1-the-archive" id="toc-1-the-archive">1. The
+archive</a></li>
+<li><a
+href="#2-setup-intro-cube-and-spacecut-the-16-colour-planar-engine"
+id="toc-2-setup-intro-cube-and-spacecut-the-16-colour-planar-engine">2.
+Setup, intro, cube and spacecut: the 16-colour planar engine</a></li>
+<li><a href="#3-plasma-exact-verified"
+id="toc-3-plasma-exact-verified">3. Plasma (exact, verified)</a></li>
+<li><a href="#4-fractal-zoom-not-computed-scrolled-exact-map"
+id="toc-4-fractal-zoom-not-computed-scrolled-exact-map">4. Fractal zoom:
+not computed, scrolled (exact map)</a></li>
+<li><a href="#5-vectorslime-tunnel-flight-torus"
+id="toc-5-vectorslime-tunnel-flight-torus">5. Vectorslime, tunnel
+flight, torus</a></li>
+<li><a href="#6-pictures-earth-chessboard-scrollers"
+id="toc-6-pictures-earth-chessboard-scrollers">6. Pictures, Earth,
+chessboard, scrollers</a></li>
+<li><a href="#7-fades" id="toc-7-fades">7. Fades</a></li>
+<li><a href="#8-the-six-text-pages" id="toc-8-the-six-text-pages">8. The
+six text pages</a></li>
+<li><a href="#9-art-catalogue-images-fonts-textures-meshes"
+id="toc-9-art-catalogue-images-fonts-textures-meshes">9. Art catalogue
+(images, fonts, textures, meshes)</a></li>
+<li><a href="#10-open-questions" id="toc-10-open-questions">10. Open
+questions</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1
+id="crystal-dream-ii-triton-1993---effects-scenes-and-how-the-port-works">CRYSTAL
+DREAM II (Triton, 1993) - effects, scenes and how the "port" works</h1>
+<p><em>Crystal Dream II</em> by <strong>Triton</strong> (credits as
+printed by the demo's own Credits page: Mr.H and Vogue code, Vogue and
+LizardKing music, Vogue graphics), released 30 May 1993, MS-DOS, 1st in
+the PC demo competition at The Computer Crossroads 1993.
+<code>CD2.EXE</code> is 3,154,579 bytes: a 79,177-byte packed module
+plus a 3,075,306-byte private archive of 58 files. The authors say it is
+"programmed in Borland Pascal 7.0 (Assembler of coz)", 43,800 lines,
+running in protected mode, not under DPMI.</p>
+<p>This write-up is shorter than those of the other ports, for one
+reason that comes first.</p>
+<h2 id="0-what-this-port-is-and-is-not">0. What this port is (and is
+not)</h2>
+<p><strong>There is no JavaScript re-implementation of the effects in
+this directory.</strong> <code>README.md</code> still lists
+<code>js/demo.js</code>, <code>js/demo3d.js</code> and
+<code>js/modplayer.js</code> from an earlier iteration; those files are
+gone (only <code>js/player.js</code> and <code>js/site.js</code> remain,
+and <code>assets/orig/</code> holds no
+<code>cube_frames.bin</code>/<code>slime_frames.bin</code>). What the
+site publishes now is a <strong>recording of the original code
+running</strong>:</p>
+<ul>
+<li><code>tools/pm/</code> is a small virtual PC around the Unicorn CPU
+emulator. It runs the unpacked program from its own entry point: Borland
+runtime, <strong>its own protected-mode switch</strong> (it builds its
+own GDT/IDT and sets CR0.PE; no DOS extender), its own timer ISR and
+mixer, every scene.</li>
+<li>What the harness supplies: INT 21h (files are served out of
+<code>CD2.EXE</code> itself, where the archive lives), conventional
+memory, an XMS driver, the BIOS tick, a VGA model (sequencer, CRTC,
+graphics controller with write modes 0-3, latches, read modes 0/1,
+attribute controller, DAC; <code>tools/pm/vga.py</code>), the 8254
+timer, the 8259, the keyboard and the printer port.</li>
+<li>The clock is one virtual clock counted in 8254 counts
+(<code>PIT_HZ = 1193182</code>); a video frame is
+<code>PIT_HZ / 70.0865</code> counts (449 lines at 31.47 kHz);
+<strong>the CPU is assumed to run 30 million instructions per
+second</strong> (<code>CPU_IPS</code>, overridable by environment). The
+retrace flag and the sampling of the display follow that clock.</li>
+<li><code>pm/record_full.py</code> records every retrace (picture,
+palette, CRT registers) and the stream of bytes the demo writes to the
+Mono-Lpt DAC (port 378h). The keys that pick the sound device and mixing
+rate in the setup menu are scripted (<code>DOWN DOWN ENTER</code>: Mono
+Lpt 1, then <code>DOWN x3 ENTER</code>: 44000 Hz). When the demo reaches
+its main menu the process forks one child per menu entry and records
+what follows. <code>pm/export_demo.py</code> packs the result.</li>
+<li>The player (<code>js/player.js</code>) decodes
+<code>video.bin</code> (chunks of 30 frames, raw deflate, palette and
+pixels XOR-delta against the previous frame) and
+<code>audio.flac</code>. It draws nothing and mixes nothing itself.
+<code>meta.json</code> of the main run: 38,201 frames, 23,378,483 audio
+samples at 43,918 Hz, audio starting 12.68 s into the video.</li>
+<li>Pause and seek are therefore trivial: the recording is random-access
+by chunk, time is looked up in <code>index.bin</code>, the audio source
+is restarted at <code>T - audio_t0</code>. Chapter buttons come from
+<code>chapters_main.json</code>: Setup 0 s, Intro 18, Linear algebra 54,
+Objects 63, Cube and magic block 90, Crystals 162, Plasma 180, Fractal
+zoom 198, Tunnel flight 252, Torus 315, Pictures 333, Earth 342,
+Scroller 369, Chessboard 405, Main menu 522.</li>
+</ul>
+<p><strong>Aspect ratio.</strong> The CRT registers are recorded with
+every frame (<code>index.bin</code> stores the picture rectangle on a
+4:3 screen as four floats per frame). Windowed effects (the tunnel's
+black bars, the 200x200 fractal window) keep the size and the borders
+they had on a monitor, and the whole thing is shown at 4:3. Mode 13h/X
+pixels are 1.2 times taller than wide on such a screen.</p>
+<p><strong>What is exact and what is not.</strong></p>
+<table>
+<thead>
+<tr>
+<th>piece</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>the code that draws every scene</td>
+<td><strong>the original instructions</strong>, executed by Unicorn. Not
+re-written</td>
+</tr>
+<tr>
+<td>frames, palettes</td>
+<td>what that code wrote into the modelled VGA, per retrace</td>
+</tr>
+<tr>
+<td>plasma table, frame, palette routine</td>
+<td>re-implemented in numpy as a check
+(<code>tools/run_plasma.py</code>): 0 differing entries / bytes /
+components against the emulated routines (re-run for this write-up)</td>
+</tr>
+<tr>
+<td>fractal zoom pixel map</td>
+<td>extracted from the emulated scaler into
+<code>assets/orig/fractal_map.bin</code>; the numpy formula reproduces
+the emulator with 0 differing pixels at z = 48, 53, 400, 1600, 3205,
+6001, 7599 (re-run: the regenerated map is byte-identical to the
+committed one)</td>
+</tr>
+<tr>
+<td>pacing (frames per scene, anything driven by elapsed time)</td>
+<td><strong>assumed</strong>: 30 MIPS CPU, 70.0865 Hz retrace. Scenes
+that adapt to frame time can differ at another CPU speed</td>
+</tr>
+<tr>
+<td>sound</td>
+<td>one run, one setup choice (Mono Lpt, 44000 Hz requested). Which
+module plays in which scene is not documented</td>
+</tr>
+<tr>
+<td>the VGA, PIT and monitor models</td>
+<td>mine, not a real card; an effect that depends on an unmodelled
+corner would differ. The monitor model has two flyback constants tuned
+so that the standard 320x200 mode fills the screen</td>
+</tr>
+<tr>
+<td>comparison with real hardware</td>
+<td>none. The site compares with screenshots of the original in DOSBox
+0.74; no pixel diff is claimed</td>
+</tr>
+</tbody>
+</table>
+<p>Earlier scene-by-scene harnesses are kept in <code>tools/</code>
+(<code>run_intro.py</code>, <code>run_title.py</code>,
+<code>run_cube.py</code>, <code>run_slime.py</code>,
+<code>run_tunnel.py</code>): each runs one scene loop alone (stubbing
+the heap, the retrace/flip calls and the music tick) and dumps its
+frames.</p>
+<h2 id="1-the-archive">1. The archive</h2>
+<p>The tail of the EXE is a directory plus data, decoded by
+<code>tools/extract.py</code>:</p>
+<ul>
+<li><code>EOF-4</code>: dword 0x135A9, where the overlay starts.
+<code>EOF-6</code>: word file count (58) XOR 0x55. The directory is 58 x
+21 bytes ending there, XOR 0x55: a length-prefixed 12-char name, dword
+offset, dword size. File <em>i</em> sits at <code>EOF - offset</code>;
+files are stored in reverse order.</li>
+<li>Data:
+<code>plain[j] = ((raw[j] ^ 0x5A) + 21*floor(j/64)) &amp; 0xFF</code>,
+<code>j</code> = offset inside the file. A plain XOR gives pictures with
+horizontal stripes because of the rolling term.</li>
+<li>Contents: 4 <code>.MOD</code>, 5 <code>.TGA</code>, 13
+<code>.LBM</code>, 10 <code>.RAW</code>, 23 <code>.TVO</code> listed
+(the site counts 24), 2 <code>.TVW</code>, <code>MegaFrac.DAT</code>.
+Offsets below are "EOF - offset", from the site's directory table.</li>
+<li>Overlay head: the 6,254 bytes before the first file are the unpacked
+program's MZ relocation table (count 1,563, then offset/segment
+pairs).</li>
+</ul>
+<h2 id="2-setup-intro-cube-and-spacecut-the-16-colour-planar-engine">2.
+Setup, intro, cube and spacecut: the 16-colour planar engine</h2>
+<p>The first scenes use VGA 16-colour planar mode (each plane is one bit
+of the colour index, one byte holds eight pixels); the later 3D scenes
+use unchained 256-colour Mode X. What I can back with the code:</p>
+<ul>
+<li>the program programs the graphics controller directly. One site
+(image <code>0xC150</code>, in the intro unit) writes
+<code>GC[8]=0xFF</code> (bit mask), <code>GC[5]=0x0B</code> (write mode
+3 <strong>and</strong> read mode 1) and <code>GC[7]=0</code>
+(colour-compare don't-care), then <code>GC[0]=0x0F</code> (set/reset). I
+did not trace which routine this belongs to, so I do not say what it
+draws.</li>
+<li><code>run_cube.py</code> models write modes 0-3 and the barrel
+shifter for exactly this reason; the cube scene writes through two VRAM
+pages 0x4000 bytes apart and flips by CRTC start address.</li>
+<li>the cube scene's four title lines are drawn by the demo's own text
+routine (image <code>0x15980</code>): it converts a 4-plane font bitmap
+(planes 8000 bytes apart, <code>Nice-f16.LBM</code>) to pixels with a
+colour base per line. <code>run_title.py</code> renders
+<code>" View the inside"</code>, <code>"      of a cube"</code>,
+<code>"     &amp;through a"</code>, <code>"    magic block"</code> with
+it.</li>
+<li>the glass look of the "crystals" is, per the site's article, opaque
+polygons written into some planes only, with palette entries for the
+combined bits showing a blend. The article marks the palette design as
+inferred; I did not verify it.</li>
+<li>faces are drawn painter-style in the order the engine emits them
+(logged, not reverse engineered).</li>
+<li>"Spacecut" is the authors' name for polygon-to-polygon intersection
+of two arbitrary objects (their Comments page: a cube against a
+dodecahedron needs 6x12 = 72 intersections; the first routine is
+credited to Celebrandil of Phenomena, <em>Animotion</em>; theirs was
+written in summer 1992). The scene loop at <code>0xB41D</code> was run
+under emulation, but I did not reverse the intersection maths, so there
+is no algorithm section for it.</li>
+</ul>
+<h2 id="3-plasma-exact-verified">3. Plasma (exact, verified)</h2>
+<p>The one effect understood end to end. Routine at image
+<code>0x3A82</code>; table builder at <code>0x3BD1</code>; palette
+routine at <code>0x3A10</code>.</p>
+<p><strong>Table.</strong>
+<code>T[i] = round(128 + 127*sin(2*pi*i/1024))</code>, 1024 bytes, built
+with the Borland real-number runtime. The emulated loop and the float64
+formula agree on all 1024 entries.</p>
+<p><strong>Frame.</strong> For row pair <code>r</code> in 0..99 and byte
+column <code>xb</code> in 0..79:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> (T[(p1 <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>r <span class="op">+</span> <span class="dv">7</span><span class="op">*</span>xb) <span class="op">&amp;</span> <span class="dv">1023</span>] <span class="op">+</span> T[(p3 <span class="op">-</span> <span class="dv">3</span><span class="op">*</span>r) <span class="op">&amp;</span> <span class="dv">1023</span>] <span class="op">+</span> T[(p4 <span class="op">-</span> r) <span class="op">&amp;</span> <span class="dv">1023</span>]) <span class="op">&amp;</span> <span class="dv">255</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># v is written as four identical pixels (all four planes enabled) on two lines</span></span></code></pre></div>
+<p>In the assembly the three row terms move as <code>[bp-2] += 2</code>,
+<code>[bp-6] += -3</code>, <code>[bp-8] += -1</code> after each row
+pair, wrapped with <code>and ..., 0x3ff</code> (image
+<code>0x3B66..0x3B7C</code>). The inner loop produces 8 bytes per trip
+(two dwords), 10 trips per row pair = 80 bytes, and each dword is stored
+twice, at <code>[es:di]</code> and <code>[es:di+0xA0]</code> (a 160-byte
+line pitch): that is the "two identical lines". The screen costs 80 x
+100 table sums, not 320 x 200.</p>
+<p><strong>Palette.</strong> Called with three phases, a count (256) and
+a level:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pal[i] <span class="op">=</span> [((T[(phase <span class="op">+</span> <span class="dv">4</span><span class="op">*</span>i) <span class="op">&amp;</span> <span class="dv">1023</span>] <span class="op">*</span> level) <span class="op">&amp;</span> <span class="bn">0xFFFF</span>) <span class="op">&gt;&gt;</span> <span class="dv">10</span>  <span class="cf">for</span> phase <span class="kw">in</span> (pr, pg, pb)]   <span class="co"># 6-bit DAC values</span></span></code></pre></div>
+<p><code>level = 256</code> gives <code>T/4</code>, 0..63. The routine
+ends by storing 0x100 in <code>[0x6684]</code>, the count of palette
+entries the next retrace call uploads. I have not decomposed how much of
+the visible motion comes from the table phases and how much from the
+palette.</p>
+<p>Check: <code>python3 tools/run_plasma.py</code> runs the three
+original routines under Unicorn against numpy versions: table 0
+differing entries; frame 0 differing bytes over 12 random phase sets;
+palette 0 differing components over 12 random (phase, level) sets.</p>
+<h2 id="4-fractal-zoom-not-computed-scrolled-exact-map">4. Fractal zoom:
+not computed, scrolled (exact map)</h2>
+<p>Nothing is iterated at run time. <code>MegaFrac.DAT</code> is four
+VGA planes x 1024 columns x 128 rows of Mandelbrot iteration counts (8 x
+64 KB tiles) plus a 16 KB per-column table the demo copies into its code
+segment. Interleaving the planes gives a 4096 x 128 strip,
+<strong>log-scaled</strong> horizontally. The scene builds the column
+map with real numbers at start-up (loop at <code>0x89B1</code>):</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>T[i][j] <span class="op">=</span> <span class="bu">round</span>(i<span class="op">/</span><span class="dv">8</span> <span class="op">+</span> <span class="fl">68.1</span> <span class="op">*</span> ln((j <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">2</span><span class="op">**</span><span class="dv">24</span> <span class="op">/</span> <span class="dv">500</span>))      <span class="co"># i = 0..7 (sub-step), j = 0..127</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>col(j)  <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, T[z <span class="op">&amp;</span> <span class="dv">7</span>][j] <span class="op">-</span> (z <span class="op">&gt;&gt;</span> <span class="dv">3</span>))                     <span class="co"># z = zoom counter</span></span></code></pre></div>
+<p>One octave is <code>68.1*ln2 = 47.2</code> strip columns, so a scroll
+of 944 columns is 20 octaves = 2^20 = 1,048,576, the "zoomfactor of
+1048576" of the authors' Comments page. Zooming in is
+<code>z += 1</code>; <code>z &amp; 7</code> picks one of eight shifted
+maps so the motion is smooth between whole columns.</p>
+<p>Each screen column copies a vertical slice of the strip scaled by a
+per-column record (asm write-up: a 4x unrolled <code>movsb</code> /
+<code>adc esi,ecx</code> loop). The output window is 200 x 200 pixels at
+x = 60..259, written to even lines of the 400-line Mode X page only (the
+extraction script asserts <code>y % 2 == 0</code>).</p>
+<p><code>tools/extract_fractal_map.py</code> hooks the emulated scaler
+and records, for each of the 40,000 output pixels, its column index
+<code>j</code>, tile <code>k</code> and source offset <code>S</code> (4
+bytes per pixel, <code>assets/orig/fractal_map.bin</code>, 160,000
+bytes), giving the closed form</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>c    <span class="op">=</span> col[j]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>tile <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>k <span class="op">+</span> ((c <span class="op">&gt;&gt;</span> <span class="dv">9</span>) <span class="op">&amp;</span> <span class="dv">1</span>)                       <span class="co"># tile segment chosen by bit 9 of the column index</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>addr <span class="op">=</span> (S <span class="op">+</span> (c <span class="op">&lt;&lt;</span> <span class="dv">7</span>)) <span class="op">&amp;</span> <span class="bn">0xFFFF</span>                    <span class="co"># 128 bytes per strip column</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pixel <span class="op">=</span> megafrac[tile<span class="op">*</span><span class="dv">65536</span> <span class="op">+</span> addr]</span></code></pre></div>
+<p>which matches the emulator with 0 differing pixels at the seven zoom
+values above. The shipped player does not use this map (it plays the
+recording); it is what a standalone port would use.</p>
+<h2 id="5-vectorslime-tunnel-flight-torus">5. Vectorslime, tunnel
+flight, torus</h2>
+<ul>
+<li><strong>Vectorslime</strong> (scene entry at image
+<code>0x248B</code>, code segment 1240h). The authors' Comments page
+says the event must run at 70 Hz to be worth looking at; the site's
+article quotes their remark that the drawing of the current frame uses
+previously drawn frames and describes a 120 x 100 render reused from 40
+earlier buffers picked by sine tables. <strong>I did not re-verify those
+two numbers.</strong> The standalone harness sets the tick counter at
+DS:667E from the frame count (<code>tick = int(frame * 50 / 70)</code>):
+a harness assumption, not a measured property.</li>
+<li><strong>Tunnel flight</strong> ("Virtual Reality", scene at image
+<code>0xBA92</code>, code segment 1B7Ah). Unchained 320x200 Mode X, two
+pages 0x4000 apart; world <code>NFly2.TVW</code> plus
+<code>NF-Seg01..07.TVO</code> and <code>NF-NShip.TVO</code>; the black
+bars are the scene's clip window (article). The scene's hard-coded video
+selectors 30h/40h had to be patched to the VGA segments in the
+standalone harness.</li>
+<li><strong>Torus</strong>: <code>TxtTori8.TVO</code> and the Triton
+logo; not analysed beyond the chapter markers.</li>
+</ul>
+<p>The article also describes 8.8 fixed-point texture walking with one
+shade-row lookup per pixel (Earth, chessboard) and a 5:4
+pre-multiplication of x in the projection. These are readings of the
+disassembly in the article that I did not independently re-check; treat
+them as plausible, not proven. Flat faces use the <code>rep stosd</code>
+span fill shown in the asm write-up.</p>
+<h2 id="6-pictures-earth-chessboard-scrollers">6. Pictures, Earth,
+chessboard, scrollers</h2>
+<ul>
+<li><strong>Pictures</strong>: <code>Raytrac1/3/4.TGA</code> and
+<code>TRN-L3.TGA</code>, pre-rendered stills (credits: podium with vase
+and sphereflake by Mr.H; toruses and Triton logo by Vogue), decoded and
+shown by the demo, faded with the palette. Displayed on a 4:3 screen
+they look tall and soft, as designed.</li>
+<li><strong>Earth</strong>: <code>Earth3.TVO</code> with textures
+<code>Earth1/2/3.LBM</code> (the authors say 264 textured polygons),
+with a scroller.</li>
+<li><strong>Chessboard</strong>: <code>NCL-*</code>/<code>NCD-*</code>
+models (light/dark King, Queen, Tower, Horse, Bond) on
+<code>Marb32.LBM</code>; the authors: 1,837 coordinates, 1,628 polygons,
+one moving light.</li>
+<li>The "Starwars" scroller and the vector scroller are by Vogue
+(credits). The vector scroller's text, as the authors print it:
+"Greetings to Cascada Future Crew Xography Codeblasters".</li>
+</ul>
+<h2 id="7-fades">7. Fades</h2>
+<p>Fades are DAC rewrites: the plasma palette routine fills a 768-byte
+buffer at DS:EE00 and flags a count; the retrace/flip call uploads it
+(the standalone harness' <code>_upload</code> copies <code>[6684]</code>
+entries from DS:EE00 to the DAC). 768 bytes instead of 64,000 pixel
+writes.</p>
+<h2 id="8-the-six-text-pages">8. The six text pages</h2>
+<p>Credits, Greetings, Information, Comments, Messages, Rumours are not
+text. Each line is a list of 4-byte records
+<code>(glyph offset in the font sheet, destination byte, sub-pixel shift | width &lt;&lt; 4)</code>
+ended by <code>0xFFFF</code>, blitted from a 640-pixel 1-bit sheet
+(<code>EndFont2.LBM</code>) with a per-pixel rotate (routine at image
+<code>0xFB4</code>). The sheet's glyph cells are kerning pairs (a cell
+shows a letter and the start of the next; the record's width crops it),
+so a record's character is the first letter of its cell; that turns the
+pages back into text (<code>tools/render_pages.py</code>). The
+Information page contains four private addresses and phone numbers from
+1993; they are blanked in the shipped text and images.</p>
+<h2 id="9-art-catalogue-images-fonts-textures-meshes">9. Art catalogue
+(images, fonts, textures, meshes)</h2>
+<p>All images below were decoded from the archive by
+<code>tools/extract.py</code> + <code>tools/convert_assets.py</code>
+(TGA and IFF to PNG) and live in <code>assets/orig/</code>. "Colours" is
+the number of distinct RGB values actually present in the converted PNG
+(counted for this write-up), not the declared palette size. Preview
+sheets generated from those PNGs are in <code>figures/</code>
+(below).</p>
+<table>
+<thead>
+<tr>
+<th>file in the archive</th>
+<th>size in archive</th>
+<th>decoded PNG</th>
+<th>colours used</th>
+<th>use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MainM256.TGA</td>
+<td>128,786</td>
+<td><code>MainM256.png</code> 320x400</td>
+<td>231</td>
+<td>main menu (Mode X double height)</td>
+</tr>
+<tr>
+<td>Raytrac1.TGA / Raytrac3.TGA / Raytrac4.TGA</td>
+<td>128,786 each</td>
+<td>320x400</td>
+<td>228 / 242 / 243</td>
+<td>raytraced stills</td>
+</tr>
+<tr>
+<td>TRN-L3.TGA</td>
+<td>128,786</td>
+<td>320x400</td>
+<td>234</td>
+<td>raytraced Triton logo picture</td>
+</tr>
+<tr>
+<td>Earth1/2/3.LBM</td>
+<td>49,194 / 52,650 / 58,972</td>
+<td>320x200</td>
+<td>249 / 248 / 252</td>
+<td>Earth texture pictures</td>
+</tr>
+<tr>
+<td>Marb32.LBM</td>
+<td>51,718</td>
+<td>320x200</td>
+<td>20</td>
+<td>chessboard marble</td>
+</tr>
+<tr>
+<td>Stone-16.LBM</td>
+<td>20,446</td>
+<td>320x200</td>
+<td>16</td>
+<td>16-colour stone texture</td>
+</tr>
+<tr>
+<td>Texture2.LBM</td>
+<td>20,152</td>
+<td>320x256</td>
+<td>121</td>
+<td>texture</td>
+</tr>
+<tr>
+<td>TextPic.LBM</td>
+<td>7,780</td>
+<td>320x200</td>
+<td>3</td>
+<td>text picture</td>
+</tr>
+<tr>
+<td>SideLogo.LBM</td>
+<td>9,268</td>
+<td>320x200</td>
+<td>14</td>
+<td>logo</td>
+</tr>
+<tr>
+<td>Arrows.LBM / CD2-Text.LBM</td>
+<td>3,068 / 16,388</td>
+<td>320x200</td>
+<td>16 / 16</td>
+<td>arrows, CD2 text</td>
+</tr>
+<tr>
+<td>Nice-f16.LBM</td>
+<td>17,896</td>
+<td>320x200</td>
+<td>16</td>
+<td>the 16-colour font used by the planar scenes (converted to 4 planes
+by <code>run_title.py</code>)</td>
+</tr>
+<tr>
+<td>Myfont.LBM</td>
+<td>14,692</td>
+<td>320x200</td>
+<td>35</td>
+<td>font</td>
+</tr>
+<tr>
+<td>EndFont2.LBM</td>
+<td>40,208</td>
+<td>640x350</td>
+<td>4</td>
+<td>1-bit-style sheet for the text pages (section 8)</td>
+</tr>
+<tr>
+<td>IntroBG1/2.RAW</td>
+<td>64,768 each</td>
+<td>not converted by the site tools to PNG here</td>
+<td>-</td>
+<td>768-byte 8-bit palette + 320x200 pixels (a sound card, a mixing
+desk, per the site)</td>
+</tr>
+<tr>
+<td>Stndrd8.RAW</td>
+<td>1,024</td>
+<td>-</td>
+<td>-</td>
+<td>8x8 bitmap font, 128 glyphs (the site notes a VOGUE logo glyph)</td>
+</tr>
+<tr>
+<td>MegaFrac.DAT</td>
+<td>540,672</td>
+<td><code>strip.png</code> 4096x128 (grey)</td>
+<td>8 planes of 64 KB + 16 KB table</td>
+<td>fractal strip (section 4)</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/pictures.png"
+alt="Contact sheet of the decoded pictures, textures and fonts (real palettes, labelled; 320x400 pictures shrunk to fit)" /></p>
+<p><img src="figures/EndFont2.png"
+alt="EndFont2.LBM, the 640x350 sheet behind the six text pages" /></p>
+<p>Formats: the <code>.TGA</code> are 8-bit colour-mapped 320x400; the
+<code>.LBM</code> are IFF ILBM (4 planes) or PBM (8-bit) with ByteRun1
+compression, palettes read from the file. The site lists 13 LBM and 5
+TGA, all decoded. The title card's palette is in
+<code>assets/orig/title_pal.json</code> and its indices in
+<code>title_idx.png</code> (61 colours used).</p>
+<p><strong>3D meshes</strong> (<code>tools/read_tvo.py</code>, objects
+exported to <code>assets/orig/objects.json</code> by
+<code>export_data.py</code>; counts below are of that export, which
+drops faces referencing out-of-range vertices):</p>
+<table>
+<thead>
+<tr>
+<th>object</th>
+<th>vertices</th>
+<th>faces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SHD_Cube</td>
+<td>10</td>
+<td>6</td>
+</tr>
+<tr>
+<td>NCL/NCD-King</td>
+<td>201</td>
+<td>182</td>
+</tr>
+<tr>
+<td>NCL-Quen / NCD-Quen</td>
+<td>192 / 189</td>
+<td>169</td>
+</tr>
+<tr>
+<td>NCL/NCD-Towr</td>
+<td>181</td>
+<td>165</td>
+</tr>
+<tr>
+<td>NCL/NCD-Hrse</td>
+<td>108</td>
+<td>95</td>
+</tr>
+<tr>
+<td>NCL/NCD-Bond</td>
+<td>141</td>
+<td>120</td>
+</tr>
+<tr>
+<td>NC-MB3 / NC-MB4</td>
+<td>46</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Earth3</td>
+<td>269</td>
+<td>288 (the authors say 264 polygons; I did not reconcile the
+difference)</td>
+</tr>
+<tr>
+<td>NF-NShip</td>
+<td>61</td>
+<td>58</td>
+</tr>
+<tr>
+<td>TxtTori8</td>
+<td>51</td>
+<td>48</td>
+</tr>
+</tbody>
+</table>
+<p><code>.TVO</code> layout: header words A..D (section offsets), 256 x
+RGB palette at 0x40 (a grey ramp with steps of 2 for shaded objects),
+faces 16 bytes (flags 0x140 polygon / 0x80 sentinel, v0..v3, colour),
+vertices 6 bytes int16 (cube = +-9830). Archive sizes: Earth3.TVO
+15,620; NCD-King 8,236; NC-MB3/4 2,874; NF-NShip 3,252; TxtTori8 3,688;
+SHD_Cube 1,202. <code>SinTab.RAW</code> (8,192 bytes) holds 4 x 1024
+int16 sine/cosine tables.</p>
+<p><img src="figures/meshes.png"
+alt="Wireframes of ten of the objects in assets/orig/objects.json, one arbitrary rotated orthographic view each; vertex and face counts are those of the export" /></p>
+<p>The chess pieces other than the king show a few long stray edges in
+this view; the faces are drawn as exported (first four indices, repeats
+collapsed) and I did not check whether those come from the data or from
+that reading.</p>
+<h2 id="10-open-questions">10. Open questions</h2>
+<ul>
+<li>which module plays in which scene; the <code>.TVW</code> world
+format; the role of the polygon fillers' patched code (partially seen in
+the asm write-up); the packer's provenance;</li>
+<li>a standalone port would start from sections 3 and 4 (both pinned
+down), then hook the polygon fillers the way
+<code>extract_fractal_map.py</code> hooks the scaler.</li>
+</ul>
+</body>
+</html>

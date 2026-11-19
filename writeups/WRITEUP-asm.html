@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>CRYSTAL DREAM II (Triton, 1993) - asm snippets worth
+reading</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+  :root{--bg:#fff;--fg:#1d1d22;--mut:#666;--ac:#c4155a;--code:#f3f3f6;--bd:#d8d8e0}
+  @media (prefers-color-scheme:dark){:root{--bg:#0b0b10;--fg:#d8d8e0;--mut:#9a9aa8;--ac:#ff6a9a;--code:#17171f;--bd:#33333f}}
+  *{box-sizing:border-box}
+  body{margin:0 auto;max-width:62rem;padding:0 16px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+  #wunav{display:flex;gap:16px;flex-wrap:wrap;padding-top:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);font-size:14px}
+  a{color:var(--ac)}
+  h1,h2,h3,h4{line-height:1.25;margin-top:1.8em}
+  img{max-width:100%;height:auto;image-rendering:auto}
+  pre{background:var(--code);border:1px solid var(--bd);border-radius:4px;padding:10px 12px;overflow-x:auto;font-size:13px;line-height:1.4}
+  code{background:var(--code);padding:1px 4px;border-radius:3px;font-size:.92em;overflow-wrap:anywhere}
+  pre code{background:none;padding:0;overflow-wrap:normal}
+  table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}
+  td,th{border:1px solid var(--bd);padding:4px 8px}
+  blockquote{border-left:3px solid var(--bd);margin-left:0;padding-left:14px;color:var(--mut)}
+  #TOC{font-size:14px}#TOC ul{padding-left:1.2em}
+  #TOC>ul{padding-left:0;list-style:none}
+  details#toc-box{margin:12px 0}
+  </style>
+</head>
+<body>
+<nav id="wunav"><a href="../index.html">&larr; the demo</a> <a href="WRITEUP-asm.html">asm</a> <a href="WRITEUP-effects.html">effects</a> <a href="https://github.com/kassoulet/Crystal_Dream_2_by_Triton">README on GitHub</a></nav>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#crystal-dream-ii-triton-1993---asm-snippets-worth-reading"
+id="toc-crystal-dream-ii-triton-1993---asm-snippets-worth-reading">CRYSTAL
+DREAM II (Triton, 1993) - asm snippets worth reading</a>
+<ul>
+<li><a href="#1-mode-x-blit-by-columns-one-out-per-column-0x6e1"
+id="toc-1-mode-x-blit-by-columns-one-out-per-column-0x6e1">1. Mode X
+blit by columns, one <code>out</code> per column (0x6E1)</a></li>
+<li><a
+href="#2-a-scanline-fill-that-keeps-its-odd-pixel-flags-in-the-carry-0x22eaf-0x22ee0"
+id="toc-2-a-scanline-fill-that-keeps-its-odd-pixel-flags-in-the-carry-0x22eaf-0x22ee0">2.
+A scanline fill that keeps its odd-pixel flags in the carry (0x22EAF,
+0x22EE0)</a></li>
+<li><a
+href="#3-integer-square-root-newton-with-a-33-bit-average-0x16120"
+id="toc-3-integer-square-root-newton-with-a-33-bit-average-0x16120">3.
+Integer square root: Newton with a 33-bit average (0x16120)</a></li>
+<li><a
+href="#4-normalising-a-vector-without-losing-a-bit-0x16179-0x161b8"
+id="toc-4-normalising-a-vector-without-losing-a-bit-0x16179-0x161b8">4.
+Normalising a vector without losing a bit (0x16179, 0x161B8)</a></li>
+<li><a href="#5-1616-squares-shrd-as-the-rescale-0x18327"
+id="toc-5-1616-squares-shrd-as-the-rescale-0x18327">5. 16.16 squares:
+<code>shrd</code> as the rescale (0x18327)</a></li>
+<li><a
+href="#6-the-plasma-loop-eight-table-offsets-patched-into-its-own-code-0x3a820x3b63"
+id="toc-6-the-plasma-loop-eight-table-offsets-patched-into-its-own-code-0x3a820x3b63">6.
+The plasma loop: eight table offsets patched into its own code
+(0x3A82..0x3B63)</a></li>
+<li><a
+href="#7-the-fractal-scaler-bresenham-with-no-branch-entered-like-a-duffs-device-0x81ed"
+id="toc-7-the-fractal-scaler-bresenham-with-no-branch-entered-like-a-duffs-device-0x81ed">7.
+The fractal scaler: Bresenham with no branch, entered like a Duff's
+device (0x81ED)</a></li>
+<li><a href="#8-cropping-a-texture-with-rep-movsd-0x195b8"
+id="toc-8-cropping-a-texture-with-rep-movsd-0x195b8">8. Cropping a
+texture with <code>rep movsd</code> (0x195B8)</a></li>
+<li><a
+href="#9-the-page-flip-retrace-test-out-dxax-and-an-atomic-read-and-clear-0x30545"
+id="toc-9-the-page-flip-retrace-test-out-dxax-and-an-atomic-read-and-clear-0x30545">9.
+The page flip: retrace test, <code>out dx,ax</code>, and an atomic
+read-and-clear (0x30545)</a></li>
+<li><a href="#10-for-the-record-the-cpu-test-is-borlands-0x31571"
+id="toc-10-for-the-record-the-cpu-test-is-borlands-0x31571">10. For the
+record: the CPU test is Borland's (0x31571)</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1
+id="crystal-dream-ii-triton-1993---asm-snippets-worth-reading">CRYSTAL
+DREAM II (Triton, 1993) - asm snippets worth reading</h1>
+<p>All addresses are offsets in the unpacked program image
+(<code>tools/img.bin</code>, made by <code>tools/unpack.py</code>, which
+runs the EXE's own unpacker). Every listing below was re-disassembled
+from that file for this write-up with <code>ndisasm -b16</code> (the
+same call as <code>tools/gen_asm.py</code>); <code>ndisasm</code> prints
+<code>shr r,1</code> as <code>shr r,0x0</code>, which is corrected to
+<code>1</code> below. The program is Borland Pascal 7 in protected mode
+(see <code>WRITEUP-effects.md</code>, section 0): <strong>16-bit code
+that uses 32-bit registers through the <code>66</code> prefix</strong>,
+so <code>eax</code>, <code>shrd</code>, <code>rep stosd</code> and
+<code>imul eax</code> show up inside otherwise 286-style routines.
+Pascal calling convention: arguments on the stack, the callee pops them
+(<code>ret 8</code>).</p>
+<p>Not everything here is the authors' hand. The routines at 0x6E1,
+0x22EAF, 0x16120, 0x16179, 0x18327, 0x3A82, 0x81ED and 0x195B8 are not
+compiler-shaped (no <code>push bp / mov bp,sp</code> pairing with a
+Pascal body around them, 32-bit registers used freely); 0x30545 is
+compiler-shaped; 0x31571 belongs to the Borland runtime. That split is
+my reading of the code, not something the binary states. Where a point
+is inference rather than something the bytes show, it says so.</p>
+<p>The code is what the demo runs for its scenes; the shipped web player
+replays a recording of it (<code>WRITEUP-effects.md</code>, section 0),
+so nothing here is "ported", only read and, for the plasma and the
+fractal, re-implemented as a check.</p>
+<hr />
+<h2 id="1-mode-x-blit-by-columns-one-out-per-column-0x6e1">1. Mode X
+blit by columns, one <code>out</code> per column (0x6E1)</h2>
+<p>Unchained Mode X puts pixel <code>x</code> in plane
+<code>x mod 4</code>. A row-by-row copy would switch plane for every
+pixel. This loop is turned on its side: for each of the 320 columns it
+selects the plane <strong>once</strong>, then walks the 200 rows of that
+column with <code>movsb</code>.</p>
+<pre><code>06e1: push di / push si / push cx
+06e4: dec cx
+06e5: add si,cx                  ; source column = base + (cx-1)
+06e7: mov bx,cx
+06e9: and bx,0x3                 ; plane = column mod 4
+06ed: mov ah,[cs:bx+0x1dd]       ; plane mask from a 4 byte table in CS
+06f2: mov al,0x2                 ; sequencer index 2 = map mask
+06f4: mov dx,0x3c4
+06f7: out dx,ax                  ; index and data with ONE out
+06f8: mov ax,cx
+06fa: shr ax,0x2
+06fd: add di,ax                  ; destination byte = column / 4
+06ff: mov cx,0xc8                ; 200 rows
+0702: movsb                      ; si++, di++
+0703: add si,0x13f               ; +319, plus movsb&#39;s 1 = a 320 byte source row
+0707: sub di,0x51                ; -81, plus movsb&#39;s 1 = -80
+070a: loop 0x702
+070c: pop cx / pop si / pop di
+070f: loop 0x6e1                 ; next column</code></pre>
+<ul>
+<li>320 port writes and 64,000 <code>movsb</code> for a whole 320x200
+image, instead of 64,000 plane switches.</li>
+<li>The two strides have the <code>movsb</code> increment folded in:
+<code>0x13f + 1</code> = 320, <code>0x51</code> seen from a destination
+that already moved by 1 is -80.</li>
+<li>The destination goes <strong>backwards</strong>. The routine appears
+twice (0x6E1 and 0x723, same body; both are entered right after
+<code>mov ax,0x30 / mov es,ax / mov di,...</code> at 0x6CC and 0x712, so
+both write through the flat selector 0x30). The first copy starts at
+<code>di = 0x7CB0</code> (0x7CB0 = 399 * 80, the last line of a 400 line
+page) and the second at <code>di = 0x3E30</code> (= 199 * 80): together
+two passes of 200 rows going upward over a 320x400 page. That is exactly
+the size of the archive's <code>.TGA</code> pictures (320x400,
+<code>WRITEUP-effects.md</code> section 9), which the TGA format stores
+bottom-up, so the blit un-flips the picture for free. The 320x400 match
+is shown by the constants; "because TGA is bottom-up" is my inference, I
+did not trace the caller.</li>
+</ul>
+<h2
+id="2-a-scanline-fill-that-keeps-its-odd-pixel-flags-in-the-carry-0x22eaf-0x22ee0">2.
+A scanline fill that keeps its odd-pixel flags in the carry (0x22EAF,
+0x22EE0)</h2>
+<p>The flat polygon filler first replicates the colour into all four
+bytes of <code>eax</code>, then fills each span with
+<code>rep stosd</code>:</p>
+<pre><code>22eaf: mov al,[ss:0x410]         ; the colour
+22eb3: mov ah,al
+22eb5: mov dx,ax
+22eb7: shl eax,0x10
+22ebb: mov ax,dx                 ; eax = cccccccc
+...
+22ee0: push cx
+22ee1: mov di,bx
+22ee3: mov cx,dx
+22ee5: sub cx,bx                 ; length = x2 - x1
+22ee7: jz 0x2f17                 ;   empty span
+22ee9: jnc 0x2eef
+22eeb: neg cx                    ; right to left: swap by negating
+22eed: mov di,dx
+22eef: add di,bp                 ; + line start
+22ef1: test di,0x1
+22ef5: jz 0x2efb
+22ef7: stosb                     ; align to a word with at most one byte ...
+22ef8: dec cx
+22ef9: jz 0x2f17
+22efb: shr cx,1                  ; CF = odd byte left over
+22efd: jz 0x2f14
+22eff: pushf                     ; park that bit on the stack
+22f00: test di,0x2
+22f04: jz 0x2f0a
+22f06: stosw                     ; ... and at most one word, so the bulk is dword aligned
+22f07: dec cx
+22f08: jz 0x2f13
+22f0a: shr cx,1                  ; CF = odd word left over
+22f0c: jc 0x2f1d                 ;   (tail: rep stosd; stosw; popf; stosb if needed)
+22f0e: jz 0x2f13
+22f10: rep stosd                 ; four pixels per store
+22f13: popf                      ; first CF is back
+22f14: jnc 0x2f17
+22f16: stosb                     ; trailing byte
+22f17: pop cx
+22f18: loop 0x2ec8               ; next scanline</code></pre>
+<ul>
+<li>No branch on a counter and no separate register for the "is there a
+trailing byte" bit: <code>shr cx,1</code> leaves it in CF,
+<code>pushf</code>/<code>popf</code> carries it across the aligned part
+(the second <code>shr</code> clobbers CF), and one <code>jnc</code> at
+the end decides on the last <code>stosb</code>.</li>
+<li>A span whose ends come in the wrong order is repaired by
+<code>neg cx</code> and <code>mov di,dx</code>, with no swap of the edge
+registers.</li>
+<li>Just above the loop (0x22EC8..0x22EDC), the left and right edges are
+stepped with
+<code>add word [mem],0x1234 / adc bx,0x1234 / add word [mem],0x1234 / adc dx,0x1234 / add bp,0x1234</code>:
+a 32-bit edge accumulator split into a memory word and a register. The
+<code>0x1234</code> immediates look like placeholders; <strong>I did not
+find the code that patches them</strong>, so I do not claim
+self-modifying code here (contrast with section 6, where the patching is
+in the listing).</li>
+</ul>
+<h2 id="3-integer-square-root-newton-with-a-33-bit-average-0x16120">3.
+Integer square root: Newton with a 33-bit average (0x16120)</h2>
+<pre><code>16124: mov ecx,[bp+0x8]          ; N low dword
+16128: mov esi,[bp+0x4]          ; N high dword
+1612c: mov ebx,ecx
+1612f: or ebx,ebx
+16132: jz 0x6165                 ; N = 0 -&gt; result 0
+16134: shr ebx,1
+16137: inc ebx                   ; first guess N/2 + 1
+16139: or esi,esi
+1613c: jz 0x6144
+1613e: mov ebx,0x7fffffff        ; N &gt;= 2^32: largest positive dword
+16144: mov di,0x11               ; 17 iterations
+16147: mov eax,ecx
+1614a: mov edx,esi
+1614d: div ebx                   ; edx:eax / x  (64 bit dividend)
+16150: xor ebp,ebp
+16153: add eax,ebx               ; N/x + x ...
+16156: adc ebp,0x0               ; ... as a 33 bit value
+1615a: shrd eax,ebp,1            ; / 2, the 33rd bit shifted back in
+1615f: mov ebx,eax
+16162: dec di
+16163: jnz 0x6147</code></pre>
+<p>The classic <code>x &lt;- (x + N/x) / 2</code>, with the detail worth
+stealing in the averaging: <code>x + N/x</code> can overflow 32 bits, so
+the sum is made with <code>add</code> / <code>adc ebp,0</code> and
+halved by one <code>shrd eax,ebp,1</code>. No overflow test, no branch
+inside the loop. 17 fixed iterations is a blunt but constant-time answer
+for any 64-bit input. (The divide is <code>div</code> of a 64-bit value
+by a 32-bit one; the clamp to 0x7fffffff when the high dword is non-zero
+keeps the first quotient in range. I did not test the routine on inputs
+above 2^32, only read it.)</p>
+<h2 id="4-normalising-a-vector-without-losing-a-bit-0x16179-0x161b8">4.
+Normalising a vector without losing a bit (0x16179, 0x161B8)</h2>
+<pre><code>16180: mov eax,[si]
+16183: imul eax                  ; one operand form: edx:eax = x*x, 64 bit
+16186: mov edi,edx
+16189: mov ecx,eax               ; edi:ecx = x^2
+1618c: mov eax,[si+0x4]
+16190: imul eax
+16193: add ecx,eax
+16196: adc edi,edx               ; += y^2 with carry
+16199: mov eax,[si+0x8]
+1619d: imul eax
+161a0: add eax,ecx
+161a3: adc edx,edi               ; edx:eax = x^2+y^2+z^2
+ ...                              ; push it, call the square root of section 3
+161b8: mov ebx,[ss:0x6be]        ; |v|
+161be: mov ecx,[bp+0x6]          ; wanted length
+161c2: mov eax,[si]
+161c5: imul ecx                  ; 64 bit product
+161c8: idiv ebx                  ; / |v|  (64 / 32), no precision thrown away before the divide
+161cb: mov [si],eax              ; repeated for y and z</code></pre>
+<p>Three squares of 32-bit signed components accumulate into a
+<strong>64-bit sum</strong> with plain
+<code>add</code>/<code>adc</code>, the result goes straight into the
+64-bit square root above, and each component is rescaled with
+<code>imul ecx</code> / <code>idiv ebx</code> where the intermediate
+stays 64 bit. On a 16-bit compiler this would be a software
+long-arithmetic call per step. It is the only place in the file that
+normalises a vector in 3-D; I did not follow which scene calls it.</p>
+<h2 id="5-1616-squares-shrd-as-the-rescale-0x18327">5. 16.16 squares:
+<code>shrd</code> as the rescale (0x18327)</h2>
+<pre><code>18330: imul eax                  ; edx:eax = x*x   (16.16 * 16.16 = 32.32)
+18333: shrd eax,edx,0x10         ; the middle dword: back to 16.16
+18338: mov ecx,eax               ; running total
+...                              ; same for the 2nd and 3rd value, added into ecx
+18359: or esi,esi
+1835c: jns 0x8361
+1835e: neg ecx                   ; negate the total if the third value was negative
+18361: mov [ss:bx],ecx</code></pre>
+<p>When both operands are 16.16 the product is 32.32; one
+<code>shrd eax,edx,16</code> pulls the right 32 bits out of
+<code>edx:eax</code>, so there is no multiply helper and no shift loop.
+Three of them make the sum of squares. The sign fix-up at the end uses
+the sign of the third value (<code>esi</code>); what that means for the
+caller I did not trace.</p>
+<h2
+id="6-the-plasma-loop-eight-table-offsets-patched-into-its-own-code-0x3a820x3b63">6.
+The plasma loop: eight table offsets patched into its own code
+(0x3A82..0x3B63)</h2>
+<p>The inner loop reads the sine table at <code>si + k*step</code> for
+eight consecutive columns. <code>step</code> is a parameter of the
+routine, so instead of eight address registers the routine
+<strong>writes the eight multiples into the displacement fields of the
+loop</strong> before it runs, through <code>fs</code>, which is loaded
+from a variable (<code>[ds:0x8b96]</code>) and, as the numbers below
+show, addresses the same bytes as the code:</p>
+<pre><code>3a86: mov fs,[ds:0x8b96]
+3a8b: mov ax,[bp+0x4]             ; step
+3a8e: mov [fs:0x11a],ax           ; 1 * step
+3a92: add ax,[bp+0x4]
+3a95: and ax,0x7ff
+3a98: mov [fs:0x106],ax           ; 2 * step
+3a9c: add ax,[bp+0x4] / and ax,0x7ff
+3aa2: mov [fs:0x10c],ax           ; 3 * step
+ ...                              ; 0x138 (4x), 0x13e (5x), 0x128 (6x), 0x12e (7x)
+3ad4: mov [fs:0x14c],ax           ; 8 * step: the loop&#39;s own advance</code></pre>
+<p>and the loop that receives them:</p>
+<pre><code>3b14: mov al,[si+0x201]           ; disp at 0x3b16  &lt;- fs:0x106  (2x)
+3b18: add al,bl
+3b1a: mov ah,[si+0x201]           ; disp at 0x3b1c  &lt;- fs:0x10c  (3x)
+3b1e: add ah,bl
+3b20: rol eax,0x10
+3b24: mov al,[si]                 ; 0x
+3b26: add al,bl
+3b28: mov ah,[si+0x201]           ; disp at 0x3b2a  &lt;- fs:0x11a  (1x)
+3b2c: add ah,bl
+3b2e: mov [es:di+0xa0],eax        ; the line below
+3b34: stosd                       ; this line
+ ...                              ; second dword: 4x,5x,6x,7x the same way
+3b5a: add si,0x1234               ; imm at 0x3b5c &lt;- fs:0x14c  (8x)
+3b5e: and si,0x7fff
+3b62: dec cx
+3b63: jnz 0x3b14</code></pre>
+<p>How I know the patch targets are the loop's own immediates: the
+loop's <code>[si+0x201]</code> displacement bytes sit at 0x3B16, 0x3B1C,
+0x3B2A, 0x3B38, 0x3B3E, 0x3B48, 0x3B4E and the <code>add si</code>
+immediate at 0x3B5C. The patched offsets are 0x106, 0x10C, 0x11A, 0x128,
+0x12E, 0x138, 0x13E and 0x14C. Each patched offset is the matching
+displacement address minus 0x3A10 (0x3B16-0x106, 0x3B1C-0x10C, ...
+0x3B5C-0x14C), so <code>fs</code> is the code segment of that unit,
+based at image offset 0x3A10 (the plasma palette routine of
+<code>WRITEUP-effects.md</code> section 3 is at 0x3A10 as well). The
+<code>0x201</code> and <code>0x1234</code> in the file are
+placeholders.</p>
+<ul>
+<li>The step multiples are <code>k*step &amp; 0x7ff</code>; the eight
+values are computed with seven <code>add</code> / <code>and</code>
+pairs, not seven multiplies.</li>
+<li>The loop has no index register besides <code>si</code>, no
+<code>+k</code> arithmetic, and per eight pixels only one
+<code>add si</code> and one <code>and si,0x7fff</code> (the wrap of the
+table position).</li>
+<li>Each trip makes <strong>eight pixels</strong> in two
+<code>eax</code>:
+<code>mov al / mov ah / rol eax,16 / mov al / mov ah</code> fills four
+bytes with two of the byte loads on each half. The row constant
+<code>bl</code> (<code>T[p3-3r] + T[p4-r]</code>, read at
+0x3B06..0x3B10) is added to each loaded byte.</li>
+<li><strong>Two lines per store</strong>: the same dword goes to
+<code>[es:di+0xa0]</code> and, with <code>stosd</code>, to
+<code>[es:di]</code>: the 160-byte line pitch of the planar page, so the
+half-height image is doubled vertically while it is computed, not
+afterwards (this is the "80 x 100 table sums" of effects section
+3).</li>
+<li>The row terms advance after each row pair as
+<code>[bp-2] += 2</code>, <code>[bp-6] += -3</code>,
+<code>[bp-8] += -1</code>, each with <code>and ...,0x3ff</code>
+(0x3B66..0x3B7C), and <code>di += 0xf0</code> moves to the next pair of
+lines.</li>
+</ul>
+<p>The routine, the table builder at 0x3BD1 and the palette routine at
+0x3A10 were run under emulation against numpy versions and agree exactly
+(<code>python3 tools/run_plasma.py</code>,
+<code>WRITEUP-effects.md</code> section 3).</p>
+<h2
+id="7-the-fractal-scaler-bresenham-with-no-branch-entered-like-a-duffs-device-0x81ed">7.
+The fractal scaler: Bresenham with no branch, entered like a Duff's
+device (0x81ED)</h2>
+<p>Each screen column of the zoom copies a vertical slice of the
+log-scaled strip, stretched by a per-column factor:</p>
+<pre><code>81f8: mov dx,[cs:si+0x20]        ; per-column record: count ...
+81fc: cmp dx,0x3
+81ff: jz 0x8240                  ;   (nothing to draw)
+8201: mov di,[cs:si+0x22]        ; ... destination offset ...
+8205: mov esi,[cs:si+0x24]       ; ... and a 32 bit source position
+820a: add si,[bp-0xc]            ; + column * 128 = start of the source column
+820d: sub si,cx                  ; pre-compensate the first &quot;add esi,ecx&quot;
+820f: shr dx,1
+8211: jc 0x821c
+8213: shr dx,1
+8215: jc 0x8225
+8217: add esi,ecx                ; (count &amp; 3) == 0
+821a: jmp 0x8239
+...
+822a: add esi,ecx                ; (count &amp; 3) == 3
+822d: movsb                      ; copy a pixel; si++, di++
+822e: adc esi,ecx                ; position += step; carry out of the high half comes back in as +1
+8231: movsb
+8232: adc esi,ecx
+8235: movsb
+8236: adc esi,ecx
+8239: movsb
+823a: adc esi,ecx
+823d: dec dx
+823e: jnz 0x822d                 ; four pixels per trip</code></pre>
+<ul>
+<li>The low two bits of the count pick the entry point in a four times
+unrolled body, so the loop counter <code>dx</code> only counts groups of
+four.</li>
+<li>My reading of the arithmetic (the bytes show the structure, not the
+contents of <code>ecx</code>): <code>movsb</code> reads through
+<code>si</code>, the low half of <code>esi</code>, so that half is the
+integer source position and the high half is the fraction.
+<code>movsb</code> supplies the <code>+1</code> of the integer step,
+<code>ecx</code> supplies the rest, and <code>adc</code> takes the carry
+out of <strong>bit 31</strong>, i.e. out of the fraction, as the
+carry-in of the next addition into the position. A Bresenham or DDA step
+with no conditional jump per pixel and no second register for the
+fraction.</li>
+<li><code>sub si,cx</code> before the first <code>add esi,ecx</code>
+cancels the extra addition every entry path makes, so the source
+position is exact at the first pixel.</li>
+<li>The scene that feeds it builds the column table with real numbers at
+start-up and then only changes
+<code>col(j) = T[z&amp;7][j] - (z&gt;&gt;3)</code> per frame
+(<code>WRITEUP-effects.md</code>, section 4). I ran this exact routine
+under emulation to read the pixel map out of <code>MegaFrac.DAT</code>,
+and the closed form built from it reproduces the emulator with 0
+differing pixels (re-run, see that section).</li>
+</ul>
+<h2 id="8-cropping-a-texture-with-rep-movsd-0x195b8">8. Cropping a
+texture with <code>rep movsd</code> (0x195B8)</h2>
+<pre><code>195c7: mov cx,0xc8               ; 200 rows
+195ca: push cx
+195cb: mov cx,0x40               ; 64 dwords = 256 bytes
+195ce: rep movsd
+195d1: add si,0x40               ; skip the other 64 of the 320 source bytes
+195d4: pop cx
+195d5: loop 0x95ca</code></pre>
+<p>Texture data of 256 x 200 is cut out of a 320 x 200 picture with 200
+<code>rep movsd</code> runs and a 64-byte skip per row. The destination
+stays contiguous, so a later lookup can use an 8-bit column index.
+Short, but it is the pattern for "convert pitch 320 to pitch 256" and
+costs 64 stores per row. (Which scene consumes the result: not
+traced.)</p>
+<h2
+id="9-the-page-flip-retrace-test-out-dxax-and-an-atomic-read-and-clear-0x30545">9.
+The page flip: retrace test, <code>out dx,ax</code>, and an atomic
+read-and-clear (0x30545)</h2>
+<pre><code>30552: in al,dx                  ; dx = 0x3da
+30553: test al,0x8
+30555: jnz 0x552                 ; leave a retrace already in progress
+30557: cli
+30558: mov ax,[bp+0x6]           ; start address (argument)
+3055b: mov [0x6672],ax
+3055e: mov bl,al
+30560: mov al,0xc                ; CRTC register 0x0c: start address high
+30562: mov dx,0x3d4
+30565: out dx,ax                 ; index (al) and data (ah) with one instruction
+30566: mov ah,bl
+30568: inc al                    ; register 0x0d: start address low
+3056a: out dx,ax
+3056b: sti
+3056c: mov dx,0x3da
+3056f: in al,dx
+30570: test al,0x8
+30572: jz 0x56f                  ; now wait for the start of the next retrace
+30574: xor ax,ax
+30576: xchg ax,[0x6684]          ; read and clear the pending palette count in one instruction
+3057a: mov [0x6686],ax           ; hand it to the retrace routine</code></pre>
+<p>Standard Mode X double buffering, the frame written into the hidden
+page and the CRTC start address then moved
+(<code>push bp / mov bp,sp</code> and an argument at
+<code>[bp+6]</code>: this one is compiler-shaped, so I credit the
+technique, not the tuning). Details worth noting:</p>
+<ul>
+<li>The two address bytes are written between <code>cli</code> and
+<code>sti</code> so an interrupt cannot land between the high and the
+low byte, which would show one frame with a torn start address.
+<code>out dx,ax</code> is what keeps the pair that short.</li>
+<li><code>xchg ax,[0x6684]</code> takes the number of palette entries to
+upload <strong>and zeroes it</strong> in one instruction. This is the
+flag that the fades of <code>WRITEUP-effects.md</code> section 7 use: a
+fade is a 768-byte DAC rewrite requested by writing a count there; the
+next retrace call consumes it exactly once.</li>
+</ul>
+<h2 id="10-for-the-record-the-cpu-test-is-borlands-0x31571">10. For the
+record: the CPU test is Borland's (0x31571)</h2>
+<pre><code>31571: xor ax,ax
+31573: pushf / pop bx
+31575: and bh,0xf                ; clear FLAGS bits 12..15
+31578: push bx / popf
+3157a: pushf / pop cx
+3157c: and ch,0xf0
+3157f: cmp ch,0xf0
+31582: jz 0x1592                 ; still all set -&gt; 8086 (level 0)
+31584: inc ax
+31585: or bh,0xf0
+31588: push bx / popf
+3158a: pushf / pop cx
+3158b: and ch,0xf0
+3158f: jz 0x1592                 ; cannot set them -&gt; 286 (level 1)
+31591: inc ax                    ; 386 or later (level 2)
+31592: mov [0x6ffa],al</code></pre>
+<p>The classic FLAGS-bit probe. It sits beside the string
+<code>Copyright (c) 1983,92 Borland</code>: it is the Pascal runtime's
+start-up test, which stores the CPU level at <code>DS:6FFA</code> and
+lets the runtime's long multiply/divide helpers use 32-bit instructions
+on a 386. It is <strong>not</strong> Triton's code and I list it only so
+it is not credited to them (<code>tools/gen_asm.py</code> card 08 makes
+the same point).</p>
+<hr />
+<p><strong>Left out on purpose.</strong> <code>tools/gen_asm.py</code>
+and the article's card "06 Clip the edge, not the loop" show the listing
+0x3B2E..0x3B52, which in <code>img.bin</code> is the middle of the
+plasma loop of section 6
+(<code>mov [es:di+0xa0],eax / stosd / mov al,[si+0x201] ...</code>), not
+an <code>imul</code> / <code>mul</code> edge clipper; its description
+does not match the bytes, so no edge-clipping routine is claimed here.
+Not analysed at all: the polygon edge set-up of the 3-D scenes, the
+Gouraud/texture span loops, the MOD mixer, the <code>.TVO</code>
+loader.</p>
+</body>
+</html>

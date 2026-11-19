@@ -43,7 +43,7 @@ jobs:
       - name: Assemble the static site (no tools, no original executable)
         run: |
           mkdir _site
-          cp -r index.html css js assets _site/
+          cp -r index.html css js assets writeups _site/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
